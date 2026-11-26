@@ -11,8 +11,9 @@
 // Planilha Oficial da Campanha:
 const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/1vAGwYnNTb5Moai2OmlGK8pNMdQvZbxtlDKEPJ9Ly_2s/gviz/tq?tqx=out:csv";
 
-// Armazenamento em Nuvem dos Padrinhos (Sincronizado entre celulares, tablets e computadores em tempo real):
-const CLOUD_SPONSORS_URL = "https://api.restful-api.dev/objects/ff808181a09d98f701a21919f50a58d5";
+// Armazenamento Oficial em Nuvem dos Padrinhos (Supabase):
+const SUPABASE_URL = "https://gjuuuknakxnjisgifhzn.supabase.co";
+const SUPABASE_KEY = "sb_publishable_7AXb42ptkywCM6k4BChrQw_1OUvEmbf";
 
 // Helper de Higienização de Segurança (Prevenção contra XSS)
 function escapeHtml(str) {
@@ -229,41 +230,39 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchCatsFromGoogleSheets();
 });
 
-// Sincronização em tempo real dos Padrinhos com a Nuvem (Cross-Device)
+// Sincronização em tempo real dos Padrinhos com o Supabase (Cross-Device)
 async function syncSponsorsFromCloud() {
-  if (!CLOUD_SPONSORS_URL) return;
+  if (!SUPABASE_URL || !SUPABASE_KEY) return;
   try {
-    const res = await fetch(CLOUD_SPONSORS_URL, { cache: "no-store" });
-    if (!res.ok) return;
-    const json = await res.json();
-    const cloudData = (json && json.data && typeof json.data === "object") ? json.data : {};
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/sponsors?select=*&order=created_at.desc`, {
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
+      },
+      cache: "no-store"
+    });
+    if (!res.ok) throw new Error("Status " + res.status);
+    const rows = await res.json();
 
-    // Obter dados locais do localStorage
-    const localMap = JSON.parse(localStorage.getItem("mansao_cats_sponsors_map") || "{}");
-    const mergedMap = { ...localMap };
-
-    // Mesclar padrinhos da nuvem preservando dados locais
-    for (const [rawKey, sponsors] of Object.entries(cloudData)) {
-      const catKey = rawKey.toLowerCase().trim();
-      if (!Array.isArray(sponsors)) continue;
-
-      if (!mergedMap[catKey]) {
-        mergedMap[catKey] = [];
-      }
-
-      sponsors.forEach(s => {
-        if (!s || !s.name) return;
-        const exists = mergedMap[catKey].some(m => 
-          m.name.toLowerCase().trim() === s.name.toLowerCase().trim() &&
-          (m.gift || "").toLowerCase().trim() === (s.gift || "").toLowerCase().trim()
-        );
-        if (!exists) {
-          mergedMap[catKey].push(s);
-        }
+    // Organizar padrinhos por gatinho a partir do Supabase
+    const cloudMap = {};
+    if (Array.isArray(rows)) {
+      rows.forEach(r => {
+        const catKey = (r.cat_key || "").toLowerCase().trim();
+        if (!catKey) return;
+        if (!cloudMap[catKey]) cloudMap[catKey] = [];
+        cloudMap[catKey].push({
+          name: r.sponsor_name,
+          gift: r.gift || "Presente de Natal",
+          date: r.created_at
+        });
       });
     }
 
-    // Salvar mapa unificado no localStorage
+    // Obter dados locais do localStorage e mesclar com resiliência
+    const localMap = JSON.parse(localStorage.getItem("mansao_cats_sponsors_map") || "{}");
+    const mergedMap = { ...localMap, ...cloudMap };
+
     localStorage.setItem("mansao_cats_sponsors_map", JSON.stringify(mergedMap));
 
     // Aplicar na lista viva de gatinhos
@@ -282,57 +281,48 @@ async function syncSponsorsFromCloud() {
       saveCatsData();
       renderCatsGrid(catsList);
       updateStats();
-      console.log("🌟 Padrinhos sincronizados com a Nuvem com sucesso!");
+      console.log("🌟 Padrinhos sincronizados do Supabase com sucesso!");
     }
   } catch (err) {
-    console.warn("Nuvem temporariamente inacessível, utilizando cache local:", err);
+    console.warn("Supabase indisponível no momento, utilizando cache local:", err);
   }
 }
 
-// Salvar apadrinhamento na Nuvem para aparecer em tempo real em todos os celulares e computadores
+// Salvar apadrinhamento no Supabase (visível em tempo real em todos os celulares e computadores)
 async function saveSponsorshipToCloud(catKey, newSponsor) {
-  if (!CLOUD_SPONSORS_URL) return;
+  if (!SUPABASE_URL || !SUPABASE_KEY) return;
   try {
-    let cloudData = {};
-    try {
-      const res = await fetch(CLOUD_SPONSORS_URL, { cache: "no-store" });
-      if (res.ok) {
-        const json = await res.json();
-        cloudData = (json && json.data && typeof json.data === "object") ? json.data : {};
-      }
-    } catch (_) {}
-
+    // 1. Manter no cache local imediatamente (feedback instantâneo sem delay)
     const localMap = JSON.parse(localStorage.getItem("mansao_cats_sponsors_map") || "{}");
-    const mergedData = { ...localMap, ...cloudData };
-
-    if (!Array.isArray(mergedData[catKey])) {
-      mergedData[catKey] = [];
+    if (!Array.isArray(localMap[catKey])) {
+      localMap[catKey] = [];
     }
+    localMap[catKey].unshift(newSponsor);
+    localStorage.setItem("mansao_cats_sponsors_map", JSON.stringify(localMap));
 
-    // Evitar duplicações idênticas consecutivas
-    const alreadyExists = mergedData[catKey].some(s => 
-      s.name.toLowerCase().trim() === newSponsor.name.toLowerCase().trim() &&
-      (s.gift || "").toLowerCase().trim() === (newSponsor.gift || "").toLowerCase().trim()
-    );
-
-    if (!alreadyExists) {
-      mergedData[catKey].unshift(newSponsor);
-    }
-
-    localStorage.setItem("mansao_cats_sponsors_map", JSON.stringify(mergedData));
-
-    // Enviar atualização persistente via PUT
-    await fetch(CLOUD_SPONSORS_URL, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
+    // 2. Inserir linha diretamente no banco Supabase
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/sponsors`, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
       body: JSON.stringify({
-        name: "mansao_sponsors",
-        data: mergedData
+        cat_key: catKey,
+        sponsor_name: newSponsor.name,
+        gift: newSponsor.gift || "Presente de Natal"
       })
     });
-    console.log(`✅ Apadrinhamento de ${newSponsor.name} para ${catKey} sincronizado em nuvem!`);
+
+    if (res.ok) {
+      console.log(`✅ Apadrinhamento de ${newSponsor.name} para ${catKey} salvo no Supabase!`);
+    } else {
+      console.warn("Aviso ao salvar no Supabase:", res.status);
+    }
   } catch (err) {
-    console.warn("Erro ao persistir apadrinhamento na nuvem (mantido localmente):", err);
+    console.warn("Erro ao enviar padrinho para o Supabase (salvo localmente):", err);
   }
 }
 
