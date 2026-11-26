@@ -327,14 +327,9 @@ function renderCatsGrid(list) {
 
           <p class="cat-bio">${cat.bio}</p>
 
-          <!-- Chamada de Adoção Responsável -->
-          <div class="cat-adoption-callout">
-            <span><i class="fa-solid fa-house-chimney-heart"></i> <strong>Disponível para Adoção!</strong></span>
-            <span>Mora no Guarujá ou região e quer me adotar?</span>
-            <a href="https://www.instagram.com/mansaodoscats/" target="_blank" rel="noopener" class="link-adopt">
-              Mande uma mensagem no @mansaodoscats 🐾
-            </a>
-          </div>
+          <button class="btn-sponsor-cat" onclick="openSponsorModal(${cat.id})" style="margin-bottom: 14px;">
+            <i class="fa-solid fa-gift"></i> Apadrinhar ${cat.name}
+          </button>
 
           <div class="cat-gifts-badge">
             <i class="fa-solid fa-wand-magic-sparkles"></i> 
@@ -343,9 +338,14 @@ function renderCatsGrid(list) {
 
           ${sponsorsHtml}
 
-          <button class="btn-sponsor-cat" onclick="openSponsorModal(${cat.id})">
-            <i class="fa-solid fa-gift"></i> Apadrinhar ${cat.name}
-          </button>
+          <!-- Chamada de Adoção Responsável -->
+          <div class="cat-adoption-callout" style="margin-top: 6px; margin-bottom: 0;">
+            <span><i class="fa-solid fa-house-chimney-heart"></i> <strong>Disponível para Adoção!</strong></span>
+            <span>Mora no Guarujá ou região e quer me adotar?</span>
+            <a href="https://www.instagram.com/mansaodoscats/" target="_blank" rel="noopener" class="link-adopt">
+              Mande uma mensagem no @mansaodoscats 🐾
+            </a>
+          </div>
         </div>
       </article>
     `;
