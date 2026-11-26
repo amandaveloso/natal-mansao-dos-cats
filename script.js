@@ -857,42 +857,42 @@ function renderCertificateCanvas(forceFallbackCat = false) {
   // 4. Cabeçalho de Textos
   ctx.textAlign = "center";
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 44px 'Fredoka', cursive, sans-serif";
+  ctx.font = "bold 44px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("MANSÃO DOS CATS • GUARUJÁ/SP", W / 2, 280);
 
   ctx.fillStyle = "#fff4bd";
-  ctx.font = "bold 32px 'Nunito', sans-serif";
+  ctx.font = "bold 32px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("🐾 CAMPANHA SOLIDÁRIA DE NATAL 🎄", W / 2, 335);
 
   // 5. Faixa Dourada com Título Oficial
   drawBanner(ctx, W / 2, 395, 860, 90, "#f5a623");
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 44px 'Fredoka', cursive, sans-serif";
+  ctx.font = "bold 42px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("CERTIFICADO DE PADRINHO NOEL", W / 2, 458);
 
   // 6. Textos do Gatinho e Padrinho
   ctx.fillStyle = "#0c3f47";
-  ctx.font = "bold 38px 'Nunito', sans-serif";
+  ctx.font = "bold 38px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("Eu apadrinhei com muito amor o(a):", W / 2, 1100);
 
   // Nome do Gatinho em Destaque Festivo
   ctx.fillStyle = "#d9383a";
-  ctx.font = "bold 76px 'Fredoka', cursive, sans-serif";
+  ctx.font = "bold 72px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText(`✨ ${currentSponsorship.cat.name} ✨`, W / 2, 1185);
 
   // Card do Presente
   drawCardBox(ctx, W / 2 - 380, 1230, 760, 90, "rgba(255, 255, 255, 0.95)", "#24bdcf");
   ctx.fillStyle = "#124d56";
-  ctx.font = "bold 34px 'Nunito', sans-serif";
+  ctx.font = "bold 34px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText(`Presente: ${currentSponsorship.giftName} 🎁`, W / 2, 1288);
 
   // Padrinho Nome
   ctx.fillStyle = "#0c3b42";
-  ctx.font = "bold 36px 'Nunito', sans-serif";
+  ctx.font = "bold 36px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("Padrinho(a) Oficial:", W / 2, 1375);
 
   ctx.fillStyle = "#b85d19";
-  ctx.font = "bold 52px 'Fredoka', cursive, sans-serif";
+  ctx.font = "bold 52px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText(`❤️ ${currentSponsorship.sponsorName} ❤️`, W / 2, 1435);
 
   // 7. Sticker de Toque no Link dos Stories (Chama muita atenção!)
@@ -902,7 +902,7 @@ function renderCertificateCanvas(forceFallbackCat = false) {
   drawCardBox(ctx, 80, 1580, W - 160, 240, "#ffffff", "#f5a623");
 
   ctx.fillStyle = "#d9383a";
-  ctx.font = "bold 36px 'Fredoka', cursive, sans-serif";
+  ctx.font = "bold 36px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("Faça o Natal de um gatinho feliz você também!", W / 2, 1638);
 
   ctx.fillStyle = "#334155";
@@ -1197,11 +1197,20 @@ function openShareCampaignModal() {
     input.value = currentSponsorship.sponsorName;
   }
   
+  // Renderização inicial imediata
+  renderSupporterCardCanvas();
+
+  // No mobile, aguarda o carregamento das fontes para redesenhar perfeito
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => renderSupporterCardCanvas());
-  } else {
-    renderSupporterCardCanvas();
+    document.fonts.ready.then(() => {
+      renderSupporterCardCanvas();
+    });
   }
+
+  // Redesenho extra garantido após 200ms para mobile WebKit
+  setTimeout(() => {
+    renderSupporterCardCanvas();
+  }, 200);
 }
 
 function closeShareCampaignModal() {
@@ -1265,21 +1274,28 @@ function renderSupporterCardCanvas() {
   ctx.textBaseline = "middle";
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 42px 'Fredoka', cursive, sans-serif";
+  ctx.font = "bold 40px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("MANSÃO DOS CATS • GUARUJÁ/SP", W / 2, 280);
 
   ctx.fillStyle = "#fff4bd";
-  ctx.font = "bold 30px 'Nunito', sans-serif";
+  ctx.font = "bold 30px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("🐾 CAMPANHA SOLIDÁRIA DE NATAL 🎄", W / 2, 335);
 
-  // 5. Faixa Dourada Oficial de Apoio - Perfeitamente centralizada e proporcional
+  // 5. Faixa Dourada Oficial de Apoio - Alinhamento Matemático e Auto-ajuste para Mobile
   const bannerY = 385;
-  const bannerH = 86;
-  drawBanner(ctx, W / 2, bannerY, 860, bannerH, "#f5a623");
+  const bannerH = 88;
+  const bannerW = 880;
+  drawBanner(ctx, W / 2, bannerY, bannerW, bannerH, "#f5a623");
 
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 38px 'Fredoka', cursive, sans-serif";
-  ctx.fillText("EU APOIO O NATAL DOS CATS! 🐾❤️", W / 2, bannerY + bannerH / 2);
+  let bannerFontSize = 34;
+  ctx.font = `bold ${bannerFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  const bannerText = "EU APOIO O NATAL DOS CATS! 🐾❤️";
+  while (ctx.measureText(bannerText).width > (bannerW - 80) && bannerFontSize > 22) {
+    bannerFontSize -= 2;
+    ctx.font = `bold ${bannerFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  }
+  ctx.fillText(bannerText, W / 2, bannerY + bannerH / 2);
   ctx.restore();
 
   // 6. Ilustração Central Fofa de Gatinho Natalino da Mansão
@@ -1294,27 +1310,34 @@ function renderSupporterCardCanvas() {
   ctx.textBaseline = "middle";
 
   ctx.fillStyle = "#0c3f47";
-  ctx.font = "bold 34px 'Nunito', sans-serif";
+  ctx.font = "bold 34px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("Eu,", W / 2, 985);
 
   // Nome do Apoiador com auto-ajuste de tamanho (evita estourar a tela se o nome for grande)
   let nameFontSize = 64;
-  ctx.font = `bold ${nameFontSize}px 'Fredoka', cursive, sans-serif`;
-  while (ctx.measureText(`✨ ${supporterName} ✨`).width > 860 && nameFontSize > 32) {
+  ctx.font = `bold ${nameFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  while (ctx.measureText(`✨ ${supporterName} ✨`).width > 860 && nameFontSize > 30) {
     nameFontSize -= 3;
-    ctx.font = `bold ${nameFontSize}px 'Fredoka', cursive, sans-serif`;
+    ctx.font = `bold ${nameFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
   }
   ctx.fillStyle = "#d9383a";
   ctx.fillText(`✨ ${supporterName} ✨`, W / 2, 1055);
 
+  // Frase de apoio com auto-ajuste
   ctx.fillStyle = "#124d56";
-  ctx.font = "bold 38px 'Fredoka', cursive, sans-serif";
-  ctx.fillText("apoio o Natal da Mansão dos Cats!", W / 2, 1125);
+  let supportFontSize = 36;
+  ctx.font = `bold ${supportFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  const supportText = "apoio o Natal da Mansão dos Cats!";
+  while (ctx.measureText(supportText).width > 860 && supportFontSize > 24) {
+    supportFontSize -= 2;
+    ctx.font = `bold ${supportFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  }
+  ctx.fillText(supportText, W / 2, 1125);
 
   // 8. Card de Manifesto / Frase Emocionante
   drawCardBox(ctx, W / 2 - 420, 1180, 840, 160, "rgba(255, 255, 255, 0.95)", "#24bdcf");
   ctx.fillStyle = "#164e57";
-  ctx.font = "600 28px 'Nunito', sans-serif";
+  ctx.font = "600 28px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText('"Estou junto nessa corrente do bem para que nenhum', W / 2, 1235);
   ctx.fillText('gatinho resgatado fique sem sachê, ração e amor!" 🥫🥣', W / 2, 1285);
 
@@ -1325,24 +1348,24 @@ function renderSupporterCardCanvas() {
   drawCardBox(ctx, 75, 1475, W - 150, 260, "#ffffff", "#f5a623");
 
   ctx.fillStyle = "#d9383a";
-  ctx.font = "bold 35px 'Fredoka', cursive, sans-serif";
+  ctx.font = "bold 35px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("Participe você também! Apadrinhe um gatinho!", W / 2, 1530);
 
   ctx.fillStyle = "#334155";
-  ctx.font = "bold 28px 'Nunito', sans-serif";
+  ctx.font = "bold 28px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("Chave Pix E-mail: padrinhogatos@gmail.com", W / 2, 1585);
 
   ctx.fillStyle = "#126b77";
-  ctx.font = "bold 28px 'Nunito', sans-serif";
+  ctx.font = "bold 28px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("Titular: FERNANDA GAGLIANO ALVES", W / 2, 1635);
 
   ctx.fillStyle = "#475569";
-  ctx.font = "600 25px 'Nunito', sans-serif";
+  ctx.font = "600 25px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("Presenteie com sachê (R$ 15), ração ou areia! 🎁", W / 2, 1680);
 
   // Rodapé
   ctx.fillStyle = "rgba(13, 67, 74, 0.85)";
-  ctx.font = "bold 26px 'Nunito', sans-serif";
+  ctx.font = "bold 26px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("Link na Bio: @mansaodoscats • Guarujá/SP • #NatalDosCats", W / 2, 1860);
 
   ctx.restore();
