@@ -1,95 +1,120 @@
 # 🐾 Natal Mansão dos Cats 🎅🎄
-### Portal da Campanha Solidária de Natal & Apadrinhamento de Gatinhos
+### Portal Solidário de Natal, Apadrinhamento e Adoção de Gatinhos
+**Guarujá / SP • ONG Mansão dos Cats**
 
-Portal web desenvolvido para a campanha de Natal da ONG **Mansão dos Cats**, inspirado em campanhas de apadrinhamento de animais com foco em experiência mobile, facilidade de doação via Pix e viralização no Instagram Stories.
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript)
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/pt-BR/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/pt-BR/docs/Web/CSS)
+[![Instagram](https://img.shields.io/badge/Instagram-@mansaodoscats-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/mansaodoscats/)
+
+---
+
+## 🌟 Sobre o Projeto
+
+A **Mansão dos Cats** é uma ONG localizada no **Guarujá/SP**, dedicada ao resgate, tratamento veterinário, castração, acolhimento e encaminhamento para **adoção responsável** de gatos em situação de vulnerabilidade e abandono no litoral paulista.
+
+Este portal foi desenvolvido para a campanha de fim de ano da instituição, permitindo que qualquer pessoa:
+1. **Apadrinhe um gatinho** com um presente simbólico de Natal (sachê, ração ou areia) via **Pix**.
+2. **Adote com amor e responsabilidade** (para lares 100% telados e seguros).
+3. **Divulgue e compartilhe** a campanha nas redes sociais através de cards personalizados gerados para **Instagram Stories (9:16)**.
 
 ---
 
 ## ✨ Funcionalidades Principais
 
-1. **Identidade Visual da Mansão dos Cats:**
-   - Paleta oficial baseada no logo: Turquesa vibrante (`#24bdcf`), Laranja/Amarelo Mansão (`#f59e1b`), Vermelho Natalino (`#d9383a`) e detalhes aconchegantes.
-   - Neve animada suave caindo na tela com patinhas e estrelas.
-   - Logo oficial da Mansão dos Cats integrado no topo, hero e certificado.
+### 1. 🐱 Catálogo de Gatinhos & Mural de Padrinhos
+- Cards detalhados com foto em alta resolução, idade, histórico de resgate, traços de personalidade e tags.
+- **Selo de Adoção Responsável:** Direcionamento direto para o Instagram oficial da ONG ([@mansaodoscats](https://www.instagram.com/mansaodoscats/)) para entrevistas de adoção.
+- **Mural de Padrinhos em Tempo Real:** Cada doador tem seu nome estampado no card do gatinho escolhido (`🎅 Amanda (Sachê 🥫)`), estimulando uma corrente solidária.
+- **Sem limitador:** Os gatinhos podem acumular múltiplos presentes ao longo de toda a campanha.
+- Filtros dinâmicos (*Todos*, *Precisando de Padrinho 🎁*, *Mais Apadrinhados ⭐*, *Filhotes 🍼*, *Especiais/Idosinhos 🌟*) e busca em tempo real.
 
-2. **Catálogo de Gatinhos Interativo:**
-   - Cards com foto, idade, tags de personalidade, biografia comovente e barra de progresso de presentes recebidos.
-   - Filtros dinâmicos: *Todos*, *Aguardando Noel 🎁*, *Já Apadrinhados ❤️*, *Filhotes 🍼* e *Especiais / Idosinhos 🌟*.
-   - Campo de busca em tempo real por nome ou traço de personalidade.
+### 2. 🎁 Fluxo de Doação via Pix em 3 Passos
+- **Passo 1: Seleção do Presente:** Sachê Delícia (R$ 15), Areia Limpinha (R$ 25), Ração Crocante (R$ 35), Combo Noel Completo (R$ 75) ou Valor Livre.
+- **Passo 2: Pagamento Pix:** QR Code gerado dinamicamente e código Pix Copia e Cola (padrão EMV BR Code) com botão de cópia em 1 clique.
+  - **Chave Pix Oficial:** `padrinhogatos@gmail.com`
+  - **Titular da Conta:** `FERNANDA GAGLIANO ALVES`
+- **Passo 3: Envio do Comprovante:** Área drag-and-drop para anexar comprovante ou botão de envio direto com mensagem pré-formatada para o WhatsApp da Mansão.
 
-3. **Fluxo de Apadrinhamento em 3 Passos (Modal):**
-   - **Passo 1: Presente Simbólico:**
-     - 🥫 Sachê Delícia de Natal — R$ 15,00
-     - 🏖️ Areia Higiênica Limpinha — R$ 25,00
-     - 🥣 Pacote de Ração Crocante — R$ 35,00
-     - 👑 Combo Noel Completo (Super Padrinho) — R$ 75,00
-     - 💖 Outro Valor Livre (campo editável)
-     - Campo para nome/apelido do padrinho e mensagem de carinho.
-   - **Passo 2: Pagamento Pix:**
-     - Chave Pix Oficial: `padrinhogatos@gmail.com`
-     - QR Code gerado dinamicamente na tela.
-     - Código Pix Copia e Cola completo com botão de cópia em 1 clique e feedback sonoro/visual.
-   - **Passo 3: Envio de Comprovante:**
-     - Área de upload com suporte a arrastar e soltar (drag & drop) ou selecionar arquivo (imagem ou PDF).
-     - Pré-visualização instantânea do arquivo anexado.
-     - Opção alternativa de envio direto para o WhatsApp da Mansão com mensagem pré-preenchida.
+### 3. 📸 Gerador Automático de Certificados (Instagram Stories 9:16)
+- Desenhado via **HTML5 Canvas API** em alta resolução (1080x1920).
+- Exibe o gatinho com gorro de Papai Noel, nome do padrinho, presente escolhido, sticker chamativo (`🔗 TOQUE NO LINK DO STORY!`) e dados oficiais da ONG.
+- Botão com download instantâneo em arquivo `.png`.
 
-4. **Tela de Agradecimento & Gerador de Certificado para Instagram:**
-   - Explosão festiva de confetes coloridos (`canvas-confetti`).
-   - Balãozinho de fala com foto do gatinho agradecendo o padrinho pelo nome.
-   - **Gerador automático de Card para Stories do Instagram (9:16 - 1080x1920):**
-     - Desenhado via HTML5 Canvas em altíssima qualidade.
-     - Contém logo da Mansão, moldura festiva, foto do gatinho com gorro de Papai Noel, nome do padrinho, presente escolhido e chave Pix para incentivar amigos a apadrinharem.
-     - Botão **"Baixar Imagem para o Instagram"** (salva direto em PNG).
-     - Botão **"Compartilhar no WhatsApp"** com texto pronto e link.
-     - Botão **"Copiar Legenda Pronta"** com hashtags natalinas para colar no post.
+### 4. 📢 Card Oficial de Apoio / Embaixador do Bem
+- Mesmo quem não puder doar dinheiro pode se engajar como embaixador da campanha.
+- A pessoa digita seu nome e ganha na hora um card personalizado:  
+  > *"Eu, [Nome], apoio o Natal da Mansão dos Cats!"*
+- Pronto para download e compartilhamento nos Stories ou WhatsApp.
+
+### 5. 🔄 Sincronização em Tempo Real com Google Sheets
+- Conectado diretamente à planilha oficial do Google Drive da ONG.
+- As voluntárias podem cadastrar novos resgatadinhos pela planilha no celular ou computador, e o site atualiza automaticamente para todos os visitantes sem necessidade de novos deploys!
+- Suporte a conversão automática de links do Google Drive e ImgBB para imagens diretas em alta definição.
 
 ---
 
-## 🚀 Como Testar Localmente no seu Computador
+## 🛠️ Tecnologias Utilizadas
 
-Você pode abrir o projeto imediatamente:
-1. Vá até a pasta `natal-mansao-dos-cats` no seu computador.
-2. Dê um duplo clique no arquivo `index.html` para abrir diretamente em qualquer navegador (Chrome, Edge, Firefox, Safari).
-3. *(Recomendado para testar o download do Canvas em navegadores com restrições locais de arquivo)*: Execute com uma extensão como **Live Server** no VS Code ou pelo terminal:
-   ```bash
-   npx serve .
-   # ou
-   python -m http.server 8080
-   ```
+- **HTML5:** Estrutura semântica, acessibilidade e micro-interações.
+- **CSS3:** Design responsivo mobile-first, variáveis CSS, gradientes natalinos, animações de neve suave e glassmorphism.
+- **JavaScript (ES6+):** Lógica reativa, integração com Google Sheets CSV API, manipulação do DOM e persistência local (`localStorage`).
+- **HTML5 Canvas API:** Renderização gráfica dos certificados e cards personalizados em 1080x1920.
+- **Canvas-Confetti:** Animação festiva de confetes na confirmação do apadrinhamento.
+- **QRCode.js:** Geração dinâmica de QR Codes de pagamento Pix.
+- **Font Awesome 6 & Google Fonts (Fredoka & Nunito):** Tipografia acolhedora e iconografia temática.
+- **Vercel:** Hospedagem em borda com alta disponibilidade, HTTPS gratuito e deploy contínuo integrado ao GitHub.
 
 ---
 
-## 📝 Como Cadastrar os Gatinhos Reais da Mansão
+## 📁 Estrutura de Arquivos
 
-Para trocar os gatinhos testes pelos reais da ONG, abra o arquivo `script.js` e edite a lista `initialCatsData` no início do arquivo:
-
-```javascript
-{
-  id: 1,
-  name: "Nome do Gato",
-  age: "2 anos",
-  category: "aguardando", // "aguardando", "apadrinhado", "filhote" ou "especial"
-  type: "adulto",         // "filhote", "adulto" ou "especial"
-  tags: ["Dócil", "Carinhoso", "Castrado"],
-  photo: "https://sua-foto-aqui.jpg", // ou caminho local ex: "assets/mingau.jpg"
-  bio: "Historinha do gatinho aqui...",
-  sponsorsCount: 0,
-  sponsorsGoal: 3,
-  status: "Aguardando Noel 🎁"
-}
+```
+natal-mansao-dos-cats/
+├── assets/
+│   ├── gatos/                   # Fotos dos gatinhos em alta resolução
+│   ├── logo-mansao-dos-cats.jpg # Logo oficial da ONG
+│   └── logo-base64.js           # Asset Base64 para renderização blindada do Canvas
+├── index.html                   # Estrutura principal e modais do portal
+├── style.css                    # Estilização visual completa e responsiva
+├── script.js                    # Regras de negócio, Canvas e sincronização Google Sheets
+├── gatos-modelo.csv             # Planilha modelo para importação de gatinhos
+├── vercel.json                  # Configuração de rotas limpas para deploy na Vercel
+└── README.md                    # Documentação do projeto
 ```
 
 ---
 
-## 🌐 Como Subir no Vercel ou Netlify
+## 🚀 Como Executar Localmente
 
-### Opção 1: Vercel (Recomendado)
-1. Instale a Vercel CLI ou acesse [vercel.com](https://vercel.com).
-2. Arraste a pasta `natal-mansao-dos-cats` ou faça deploy via Git.
-3. Como é um projeto estático com `vercel.json` pré-configurado, o deploy fica pronto em menos de 30 segundos com HTTPS gratuito!
+1. Clone o repositório:
+```bash
+git clone https://github.com/amandaveloso/natal-mansao-dos-cats.git
+```
+2. Acesse a pasta do projeto:
+```bash
+cd natal-mansao-dos-cats
+```
+3. Abra o arquivo `index.html` em qualquer navegador ou execute com um servidor local:
+```bash
+# Com Node.js:
+npx serve .
 
-### Opção 2: Netlify
-1. Acesse [app.netlify.com/drop](https://app.netlify.com/drop).
-2. Arraste a pasta `natal-mansao-dos-cats`.
-3. Pronto! O site estará online imediatamente.
+# Ou com Python:
+python -m http.server 8080
+```
+
+---
+
+## 🔒 Dados Oficiais da Campanha (Transparência)
+
+- **Instituição:** Mansão dos Cats — Resgate e Proteção Animal
+- **Localização:** Guarujá - SP (Atendimento na Baixada Santista)
+- **Instagram Oficial:** [@mansaodoscats](https://www.instagram.com/mansaodoscats/)
+- **Chave Pix Oficial (E-mail):** `padrinhogatos@gmail.com`
+- **Titular da Conta:** `FERNANDA GAGLIANO ALVES`
+
+---
+
+*Desenvolvido com muito amor e carinho pelos gatinhos da Mansão dos Cats! 🐾❤️🎄*
