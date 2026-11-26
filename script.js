@@ -468,8 +468,6 @@ function setupEventListeners() {
   // Navegação do Fluxo (Steps)
   document.getElementById("btn-goto-step-2")?.addEventListener("click", goToStep2);
   document.getElementById("btn-backto-step-1")?.addEventListener("click", () => switchStep(1));
-  document.getElementById("btn-goto-step-3")?.addEventListener("click", () => switchStep(3));
-  document.getElementById("btn-backto-step-2")?.addEventListener("click", () => switchStep(2));
   document.getElementById("btn-finish-sponsorship")?.addEventListener("click", finishSponsorship);
 
   // Copiar Chave Pix
@@ -484,9 +482,6 @@ function setupEventListeners() {
       copyText(textarea.value, document.getElementById("btn-copy-copiacola"));
     }
   });
-
-  // Dropzone de Comprovante
-  setupDropzone();
 
   // Ações do Modal de Sucesso
   document.getElementById("btn-download-cert")?.addEventListener("click", downloadCertificate);
@@ -531,7 +526,7 @@ function switchStep(stepNumber) {
   document.querySelectorAll(".step-screen").forEach(s => s.classList.remove("active"));
   document.getElementById(`screen-step-${stepNumber}`)?.classList.add("active");
 
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 2; i++) {
     const indicator = document.getElementById(`indicator-step-${i}`);
     if (indicator) {
       indicator.classList.remove("active", "completed");
@@ -632,94 +627,8 @@ function renderQrCode(text) {
 }
 
 // =================================================================
-// 5. UPLOAD DE COMPROVANTE & FINALIZAÇÃO
+// 5. FINALIZAÇÃO DO APADRINHAMENTO
 // =================================================================
-function setupDropzone() {
-  const dropzone = document.getElementById("receipt-dropzone");
-  const fileInput = document.getElementById("receipt-file-input");
-  const idle = document.getElementById("dropzone-idle");
-  const preview = document.getElementById("dropzone-preview");
-  const previewImg = document.getElementById("preview-image");
-  const previewPdf = document.getElementById("preview-pdf-icon");
-  const previewFilename = document.getElementById("preview-filename");
-  const removeBtn = document.getElementById("btn-remove-file");
-
-  if (!dropzone || !fileInput) return;
-
-  dropzone.addEventListener("click", () => fileInput.click());
-
-  dropzone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("dragover");
-  });
-
-  dropzone.addEventListener("dragleave", () => {
-    dropzone.classList.remove("dragover");
-  });
-
-  dropzone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("dragover");
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
-    }
-  });
-
-  fileInput.addEventListener("change", (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0]);
-    }
-  });
-
-  removeBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    currentSponsorship.receiptFile = null;
-    currentSponsorship.receiptPreviewUrl = null;
-    fileInput.value = "";
-    preview.classList.add("hidden");
-    idle.classList.remove("hidden");
-  });
-
-  function handleFile(file) {
-    if (!file) return;
-
-    // Varredura de Segurança: Validar tamanho (máx 10MB) e formato permitido
-    const maxSizeBytes = 10 * 1024 * 1024;
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg", "application/pdf"];
-
-    if (file.size > maxSizeBytes) {
-      alert("O arquivo do comprovante é muito grande. Envie um arquivo de até 10MB.");
-      return;
-    }
-
-    if (file.type && !allowedTypes.includes(file.type.toLowerCase())) {
-      alert("Formato de arquivo não suportado. Por favor, envie uma foto (JPG, PNG) ou documento PDF.");
-      return;
-    }
-
-    currentSponsorship.receiptFile = file;
-    previewFilename.textContent = escapeHtml(file.name);
-    idle.classList.add("hidden");
-    preview.classList.remove("hidden");
-
-    if (file.type && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        currentSponsorship.receiptPreviewUrl = event.target.result;
-        previewImg.src = event.target.result;
-        previewImg.classList.remove("hidden");
-        previewPdf.classList.add("hidden");
-      };
-      reader.readAsDataURL(file);
-    } else {
-      previewImg.classList.add("hidden");
-      previewPdf.classList.remove("hidden");
-    }
-
-    showToast("Comprovante anexado com sucesso! 🐾");
-  }
-}
-
 function finishSponsorship() {
   const cat = currentSponsorship.cat;
   if (cat) {

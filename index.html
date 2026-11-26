@@ -365,11 +365,7 @@
         </div>
         <div class="step-line"></div>
         <div class="step-indicator" id="indicator-step-2">
-          <span>2</span> Pix
-        </div>
-        <div class="step-line"></div>
-        <div class="step-indicator" id="indicator-step-3">
-          <span>3</span> Comprovante
+          <span>2</span> Pagamento Pix
         </div>
       </div>
 
@@ -521,50 +517,8 @@
           <button class="btn-secondary" id="btn-backto-step-1">
             <i class="fa-solid fa-arrow-left"></i> Voltar
           </button>
-          <button class="btn-primary" id="btn-goto-step-3">
-            Já fiz o Pix, anexar comprovante <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- STEP 3: Envio de Comprovante -->
-      <div class="step-screen" id="screen-step-3">
-        <h4 class="step-heading">
-          <i class="fa-solid fa-receipt"></i> Anexar Comprovante do Pix
-        </h4>
-        <p class="step-desc">
-          Anexe a imagem ou PDF do seu comprovante para confirmarmos o apadrinhamento e liberarmos seu certificado exclusivo:
-        </p>
-
-        <!-- Dropzone / File Picker -->
-        <div class="receipt-dropzone" id="receipt-dropzone">
-          <input type="file" id="receipt-file-input" accept="image/*,application/pdf" class="hidden-file-input">
-          <div class="dropzone-idle" id="dropzone-idle">
-            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
-            <p><strong>Clique aqui para selecionar</strong> ou arraste o print do comprovante</p>
-            <span class="dropzone-hint">Formatos aceitos: JPG, PNG, PDF ou print de tela</span>
-          </div>
-
-          <div class="dropzone-preview hidden" id="dropzone-preview">
-            <div class="preview-thumb">
-              <img id="preview-image" src="" alt="Comprovante">
-              <i id="preview-pdf-icon" class="fa-solid fa-file-pdf hidden"></i>
-            </div>
-            <div class="preview-details">
-              <span id="preview-filename">comprovante_pix.png</span>
-              <button type="button" class="btn-remove-file" id="btn-remove-file">
-                <i class="fa-solid fa-trash-can"></i> Trocar arquivo
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="modal-footer-actions dual">
-          <button class="btn-secondary" id="btn-backto-step-2">
-            <i class="fa-solid fa-arrow-left"></i> Voltar
-          </button>
           <button class="btn-primary success-btn" id="btn-finish-sponsorship">
-            <i class="fa-solid fa-check"></i> Concluir e Gerar Certificado!
+            <i class="fa-solid fa-check"></i> Já fiz o Pix! Concluir e Gerar Certificado 🎉
           </button>
         </div>
       </div>
