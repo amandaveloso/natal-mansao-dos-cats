@@ -35,7 +35,7 @@ Este portal foi desenvolvido para a campanha de fim de ano da instituição, per
 - **Passo 2: Pagamento Pix:** QR Code gerado dinamicamente e código Pix Copia e Cola (padrão EMV BR Code) com botão de cópia em 1 clique.
   - **Chave Pix Oficial:** `padrinhogatos@gmail.com`
   - **Titular da Conta:** `FERNANDA GAGLIANO ALVES`
-- **Passo 3: Envio do Comprovante:** Área drag-and-drop para anexar comprovante ou botão de envio direto com mensagem pré-formatada para o WhatsApp da Mansão.
+- **Passo 3: Envio do Comprovante:** Área drag-and-drop para anexar o comprovante do Pix com pré-visualização instantânea para emitir o Certificado Oficial de Padrinho Noel.
 
 ### 3. 📸 Gerador Automático de Certificados (Instagram Stories 9:16)
 - Desenhado via **HTML5 Canvas API** em alta resolução (1080x1920).
@@ -46,7 +46,7 @@ Este portal foi desenvolvido para a campanha de fim de ano da instituição, per
 - Mesmo quem não puder doar dinheiro pode se engajar como embaixador da campanha.
 - A pessoa digita seu nome e ganha na hora um card personalizado:  
   > *"Eu, [Nome], apoio o Natal da Mansão dos Cats!"*
-- Pronto para download e compartilhamento nos Stories ou WhatsApp.
+- Pronto para download em alta resolução e compartilhamento nos Stories do Instagram.
 
 ### 5. 🔄 Sincronização em Tempo Real com Google Sheets
 - Conectado diretamente à planilha oficial do Google Drive da ONG.

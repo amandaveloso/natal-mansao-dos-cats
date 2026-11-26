@@ -11,6 +11,17 @@
 // Planilha Oficial da Campanha:
 const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/1vAGwYnNTb5Moai2OmlGK8pNMdQvZbxtlDKEPJ9Ly_2s/gviz/tq?tqx=out:csv";
 
+// Helper de Higienização de Segurança (Prevenção contra XSS)
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // Mapa de resolução direta para links de páginas do ImgBB (ibb.co -> i.ibb.co)
 const IMGBB_DIRECT_MAP = {
   "5gFjLrcH": "https://i.ibb.co/W4tzfkKJ/Rosinha.png",
@@ -22,11 +33,21 @@ const IMGBB_DIRECT_MAP = {
   "6cZp076d": "https://i.ibb.co/ZRJwzpyZ/Bruno-Mars.png"
 };
 
-// Helper para converter links do Google Drive e ImgBB para imagem direta
+// Helper para converter links do Google Drive e ImgBB para imagem direta com validação de protocolo
 function formatPhotoUrl(url) {
   if (!url || typeof url !== "string") return "assets/logo-mansao-dos-cats.jpg";
   const trimmed = url.trim();
   if (!trimmed) return "assets/logo-mansao-dos-cats.jpg";
+
+  // Prevenção contra injeção de esquemas maliciosos (javascript:, data:text/html, etc.)
+  if (!/^https?:\/\/|^data:image\/|^assets\//i.test(trimmed)) {
+    return "assets/logo-mansao-dos-cats.jpg";
+  }
+
+  // Se já for imagem direta i.ibb.co
+  if (trimmed.includes("i.ibb.co")) {
+    return trimmed;
+  }
 
   // Se for link do ImgBB (ex: https://ibb.co/5gFjLrcH)
   const ibbMatch = trimmed.match(/ibb\.co\/([a-zA-Z0-9]+)/);
@@ -280,7 +301,7 @@ function renderCatsGrid(list) {
     const giftsCount = cat.sponsorsCount || (cat.sponsors ? cat.sponsors.length : 0);
     const hasSponsors = cat.sponsors && cat.sponsors.length > 0;
 
-    // Mural de Padrinhos
+    // Mural de Padrinhos (com escapeHtml para segurança)
     let sponsorsHtml = "";
     if (hasSponsors) {
       sponsorsHtml = `
@@ -288,8 +309,8 @@ function renderCatsGrid(list) {
           <span class="sponsors-label"><i class="fa-solid fa-heart" style="color: var(--festive-red);"></i> Padrinhos Noel:</span>
           <div class="sponsors-list-tags">
             ${cat.sponsors.map(s => `
-              <span class="sponsor-chip" title="Presenteou com ${s.gift}">
-                🎅 <strong>${s.name}</strong> <small>(${s.gift})</small>
+              <span class="sponsor-chip" title="Presenteou com ${escapeHtml(s.gift)}">
+                🎅 <strong>${escapeHtml(s.name)}</strong> <small>(${escapeHtml(s.gift)})</small>
               </span>
             `).join('')}
           </div>
@@ -299,16 +320,21 @@ function renderCatsGrid(list) {
       sponsorsHtml = `
         <div class="cat-sponsors-section">
           <div class="sponsor-chip-empty">
-            <span>✨ Seja o 1º Padrinho Noel do ${cat.name}!</span>
+            <span>✨ Seja o 1º Padrinho Noel do ${escapeHtml(cat.name)}!</span>
           </div>
         </div>
       `;
     }
 
+    const safeName = escapeHtml(cat.name);
+    const safeAge = escapeHtml(cat.age);
+    const safeBio = escapeHtml(cat.bio);
+    const safePhoto = escapeHtml(cat.photo);
+
     return `
       <article class="cat-card" data-cat-id="${cat.id}">
         <div class="cat-card-media">
-          <img src="${cat.photo}" alt="${cat.name}" class="cat-img" loading="lazy" onerror="this.src='assets/logo-mansao-dos-cats.jpg'">
+          <img src="${safePhoto}" alt="${safeName}" class="cat-img" loading="lazy" onerror="this.src='assets/logo-mansao-dos-cats.jpg'">
           <span class="cat-status-badge aguardando">
             <i class="fa-solid fa-gift"></i> ${giftsCount > 0 ? `${giftsCount} presente${giftsCount > 1 ? 's' : ''} ganho${giftsCount > 1 ? 's' : ''}` : 'Aguardando Noel 🎁'}
           </span>
@@ -317,18 +343,18 @@ function renderCatsGrid(list) {
 
         <div class="cat-card-body">
           <div class="cat-title-row">
-            <h3 class="cat-name">${cat.name}</h3>
-            <span class="cat-age">${cat.age}</span>
+            <h3 class="cat-name">${safeName}</h3>
+            <span class="cat-age">${safeAge}</span>
           </div>
 
           <div class="cat-tags">
-            ${cat.tags.map(t => `<span class="cat-tag">${t}</span>`).join('')}
+            ${cat.tags.map(t => `<span class="cat-tag">${escapeHtml(t)}</span>`).join('')}
           </div>
 
-          <p class="cat-bio">${cat.bio}</p>
+          <p class="cat-bio">${safeBio}</p>
 
           <button class="btn-sponsor-cat" onclick="openSponsorModal(${cat.id})" style="margin-bottom: 14px;">
-            <i class="fa-solid fa-gift"></i> Apadrinhar ${cat.name}
+            <i class="fa-solid fa-gift"></i> Apadrinhar ${safeName}
           </button>
 
           <div class="cat-gifts-badge">
@@ -342,7 +368,7 @@ function renderCatsGrid(list) {
           <div class="cat-adoption-callout" style="margin-top: 6px; margin-bottom: 0;">
             <span><i class="fa-solid fa-house-chimney-heart"></i> <strong>Disponível para Adoção!</strong></span>
             <span>Mora no Guarujá ou região e quer me adotar?</span>
-            <a href="https://www.instagram.com/mansaodoscats/" target="_blank" rel="noopener" class="link-adopt">
+            <a href="https://www.instagram.com/mansaodoscats/" target="_blank" rel="noopener noreferrer" class="link-adopt">
               Mande uma mensagem no @mansaodoscats 🐾
             </a>
           </div>
@@ -460,16 +486,8 @@ function setupEventListeners() {
   // Dropzone de Comprovante
   setupDropzone();
 
-  // Botão WhatsApp no Passo 3
-  document.getElementById("btn-wa-direct")?.addEventListener("click", () => {
-    const catName = currentSponsorship.cat ? currentSponsorship.cat.name : "Gatinho";
-    const text = encodeURIComponent(`Olá Mansão dos Cats! Acabei de apadrinhar o(a) ${catName} no valor de R$ ${currentSponsorship.amount.toFixed(2)} (${currentSponsorship.giftName}) para a titular FERNANDA GAGLIANO ALVES. Segue meu comprovante de Pix! 🐾`);
-    window.open(`https://wa.me/5513999999999?text=${text}`, "_blank");
-  });
-
   // Ações do Modal de Sucesso
   document.getElementById("btn-download-cert")?.addEventListener("click", downloadCertificate);
-  document.getElementById("btn-share-whatsapp")?.addEventListener("click", shareOnWhatsApp);
   document.getElementById("btn-copy-caption")?.addEventListener("click", copyInstagramCaption);
   document.getElementById("btn-sponsor-another")?.addEventListener("click", () => {
     closeSuccessModal();
@@ -661,12 +679,28 @@ function setupDropzone() {
   });
 
   function handleFile(file) {
+    if (!file) return;
+
+    // Varredura de Segurança: Validar tamanho (máx 10MB) e formato permitido
+    const maxSizeBytes = 10 * 1024 * 1024;
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg", "application/pdf"];
+
+    if (file.size > maxSizeBytes) {
+      alert("O arquivo do comprovante é muito grande. Envie um arquivo de até 10MB.");
+      return;
+    }
+
+    if (file.type && !allowedTypes.includes(file.type.toLowerCase())) {
+      alert("Formato de arquivo não suportado. Por favor, envie uma foto (JPG, PNG) ou documento PDF.");
+      return;
+    }
+
     currentSponsorship.receiptFile = file;
-    previewFilename.textContent = file.name;
+    previewFilename.textContent = escapeHtml(file.name);
     idle.classList.add("hidden");
     preview.classList.remove("hidden");
 
-    if (file.type.startsWith("image/")) {
+    if (file.type && file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = (event) => {
         currentSponsorship.receiptPreviewUrl = event.target.result;
@@ -1109,18 +1143,6 @@ function downloadCertificate() {
   }
 }
 
-function shareOnWhatsApp() {
-  const catName = currentSponsorship.cat ? currentSponsorship.cat.name : "um gatinho";
-  const text = encodeURIComponent(
-    `🎄 Olá! Acabei de apadrinhar o gatinho ${catName} na Campanha de Natal da Mansão dos Cats (Guarujá/SP)! 🐾❤️\n\n` +
-    `Você também pode presentear um gatinho resgatado com sachê (R$ 15), ração ou areia via Pix!\n` +
-    `Chave Pix E-mail: padrinhogatos@gmail.com\n` +
-    `Titular: FERNANDA GAGLIANO ALVES\n\n` +
-    `Conheça os gatinhos e participe também!`
-  );
-  window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
-}
-
 function copyInstagramCaption() {
   const catName = currentSponsorship.cat ? currentSponsorship.cat.name : "um gatinho";
   const caption = 
@@ -1295,21 +1317,6 @@ function downloadSupporterCard() {
     console.error("Erro ao baixar card de apoio", err);
     showToast("Erro ao baixar o card. Tente novamente!");
   }
-}
-
-function shareCampaignOnWhatsApp() {
-  const rawName = document.getElementById("supporter-name-input")?.value.trim();
-  const greeting = rawName ? `Eu (${rawName}) apoio` : `Eu apoio`;
-
-  const text = encodeURIComponent(
-    `🎄🐾 ${greeting} a Campanha de Natal da Mansão dos Cats (Guarujá/SP)! 🎅\n\n` +
-    `Dezenas de gatinhos resgatados estão esperando um Padrinho Noel neste fim de ano! Você pode apadrinhar com um presentinho simbólico (sachê R$ 15, ração ou areia) e ganhar um lindo certificado para postar no Instagram!\n\n` +
-    `Todos eles também estão disponíveis para adoção responsável no Guarujá e Baixada Santista! 🏠\n\n` +
-    `Pix Oficial: padrinhogatos@gmail.com (Titular: FERNANDA GAGLIANO ALVES)\n` +
-    `Instagram: @mansaodoscats\n\n` +
-    `Vem fazer parte dessa corrente do bem!`
-  );
-  window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
 }
 
 function copyCampaignGeneralText() {
