@@ -11,6 +11,9 @@
 // Planilha Oficial da Campanha:
 const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/1vAGwYnNTb5Moai2OmlGK8pNMdQvZbxtlDKEPJ9Ly_2s/gviz/tq?tqx=out:csv";
 
+// Armazenamento em Nuvem dos Padrinhos (Sincronizado entre celulares, tablets e computadores em tempo real):
+const CLOUD_SPONSORS_URL = "https://api.restful-api.dev/objects/ff808181a09d98f701a21919f50a58d5";
+
 // Helper de Higienização de Segurança (Prevenção contra XSS)
 function escapeHtml(str) {
   if (str === null || str === undefined) return "";
@@ -219,9 +222,119 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
   setupQrCode();
 
-  // Sincronizar automaticamente com a Planilha Google
+  // 1. Sincronizar primeiro os padrinhos salvos na nuvem (visíveis em todos os dispositivos)
+  syncSponsorsFromCloud();
+
+  // 2. Sincronizar automaticamente os gatinhos com a Planilha Google
   fetchCatsFromGoogleSheets();
 });
+
+// Sincronização em tempo real dos Padrinhos com a Nuvem (Cross-Device)
+async function syncSponsorsFromCloud() {
+  if (!CLOUD_SPONSORS_URL) return;
+  try {
+    const res = await fetch(CLOUD_SPONSORS_URL, { cache: "no-store" });
+    if (!res.ok) return;
+    const json = await res.json();
+    const cloudData = (json && json.data && typeof json.data === "object") ? json.data : {};
+
+    // Obter dados locais do localStorage
+    const localMap = JSON.parse(localStorage.getItem("mansao_cats_sponsors_map") || "{}");
+    const mergedMap = { ...localMap };
+
+    // Mesclar padrinhos da nuvem preservando dados locais
+    for (const [rawKey, sponsors] of Object.entries(cloudData)) {
+      const catKey = rawKey.toLowerCase().trim();
+      if (!Array.isArray(sponsors)) continue;
+
+      if (!mergedMap[catKey]) {
+        mergedMap[catKey] = [];
+      }
+
+      sponsors.forEach(s => {
+        if (!s || !s.name) return;
+        const exists = mergedMap[catKey].some(m => 
+          m.name.toLowerCase().trim() === s.name.toLowerCase().trim() &&
+          (m.gift || "").toLowerCase().trim() === (s.gift || "").toLowerCase().trim()
+        );
+        if (!exists) {
+          mergedMap[catKey].push(s);
+        }
+      });
+    }
+
+    // Salvar mapa unificado no localStorage
+    localStorage.setItem("mansao_cats_sponsors_map", JSON.stringify(mergedMap));
+
+    // Aplicar na lista viva de gatinhos
+    let hasChanges = false;
+    catsList.forEach(cat => {
+      const catKey = cat.name.toLowerCase().trim();
+      const currentList = mergedMap[catKey] || [];
+      if (currentList.length > 0) {
+        cat.sponsors = currentList;
+        cat.sponsorsCount = currentList.length;
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      saveCatsData();
+      renderCatsGrid(catsList);
+      updateStats();
+      console.log("🌟 Padrinhos sincronizados com a Nuvem com sucesso!");
+    }
+  } catch (err) {
+    console.warn("Nuvem temporariamente inacessível, utilizando cache local:", err);
+  }
+}
+
+// Salvar apadrinhamento na Nuvem para aparecer em tempo real em todos os celulares e computadores
+async function saveSponsorshipToCloud(catKey, newSponsor) {
+  if (!CLOUD_SPONSORS_URL) return;
+  try {
+    let cloudData = {};
+    try {
+      const res = await fetch(CLOUD_SPONSORS_URL, { cache: "no-store" });
+      if (res.ok) {
+        const json = await res.json();
+        cloudData = (json && json.data && typeof json.data === "object") ? json.data : {};
+      }
+    } catch (_) {}
+
+    const localMap = JSON.parse(localStorage.getItem("mansao_cats_sponsors_map") || "{}");
+    const mergedData = { ...localMap, ...cloudData };
+
+    if (!Array.isArray(mergedData[catKey])) {
+      mergedData[catKey] = [];
+    }
+
+    // Evitar duplicações idênticas consecutivas
+    const alreadyExists = mergedData[catKey].some(s => 
+      s.name.toLowerCase().trim() === newSponsor.name.toLowerCase().trim() &&
+      (s.gift || "").toLowerCase().trim() === (newSponsor.gift || "").toLowerCase().trim()
+    );
+
+    if (!alreadyExists) {
+      mergedData[catKey].unshift(newSponsor);
+    }
+
+    localStorage.setItem("mansao_cats_sponsors_map", JSON.stringify(mergedData));
+
+    // Enviar atualização persistente via PUT
+    await fetch(CLOUD_SPONSORS_URL, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "mansao_sponsors",
+        data: mergedData
+      })
+    });
+    console.log(`✅ Apadrinhamento de ${newSponsor.name} para ${catKey} sincronizado em nuvem!`);
+  } catch (err) {
+    console.warn("Erro ao persistir apadrinhamento na nuvem (mantido localmente):", err);
+  }
+}
 
 // Sincronização automática com a Planilha Google da Mansão dos Cats
 async function fetchCatsFromGoogleSheets() {
@@ -236,7 +349,7 @@ async function fetchCatsFromGoogleSheets() {
       const savedSponsors = JSON.parse(localStorage.getItem("mansao_cats_sponsors_map") || "{}");
       catsList = parsed.map(c => {
         const catKey = c.name.toLowerCase().trim();
-        const catSponsors = savedSponsors[catKey] || [];
+        const catSponsors = savedSponsors[catKey] || (c.sponsors || []);
         return {
           ...c,
           sponsors: catSponsors,
@@ -247,6 +360,9 @@ async function fetchCatsFromGoogleSheets() {
       renderCatsGrid(catsList);
       updateStats();
       console.log(`✨ ${catsList.length} gatinhos sincronizados da Planilha Google da Mansão dos Cats!`);
+
+      // Sincronizar padrinhos da nuvem após sincronizar lista da planilha
+      syncSponsorsFromCloud();
     }
   } catch (err) {
     console.warn("Usando dados locais de gatinhos (offline ou fallback):", err);
@@ -493,6 +609,17 @@ function setupEventListeners() {
     const gatinhosSection = document.getElementById("gatinhos");
     if (gatinhosSection) gatinhosSection.scrollIntoView({ behavior: "smooth" });
   });
+
+  // Card de Divulgação Geral da Campanha
+  const supporterInput = document.getElementById("supporter-name-input");
+  if (supporterInput) {
+    supporterInput.addEventListener("input", () => {
+      renderSupporterCardCanvas();
+    });
+  }
+  document.getElementById("btn-download-supporter")?.addEventListener("click", downloadSupporterCard);
+  document.getElementById("btn-copy-campaign-text")?.addEventListener("click", copyCampaignGeneralText);
+  document.getElementById("share-campaign-close")?.addEventListener("click", closeShareCampaignModal);
 }
 
 // =================================================================
@@ -635,20 +762,26 @@ function finishSponsorship() {
   const cat = currentSponsorship.cat;
   if (cat) {
     if (!Array.isArray(cat.sponsors)) cat.sponsors = [];
-    cat.sponsors.unshift({
-      name: currentSponsorship.sponsorName,
-      gift: currentSponsorship.giftName
-    });
+    const newSponsor = {
+      name: currentSponsorship.sponsorName || "Padrinho Noel Anônimo",
+      gift: currentSponsorship.giftName || "Presente de Natal"
+    };
+    cat.sponsors.unshift(newSponsor);
     cat.sponsorsCount = cat.sponsors.length;
 
-    // Preservar padrinhos associados ao nome do gatinho
+    const catKey = cat.name.toLowerCase().trim();
+
+    // Preservar padrinhos associados ao nome do gatinho no armazenamento local
     const savedSponsors = JSON.parse(localStorage.getItem("mansao_cats_sponsors_map") || "{}");
-    savedSponsors[cat.name.toLowerCase().trim()] = cat.sponsors;
+    savedSponsors[catKey] = cat.sponsors;
     localStorage.setItem("mansao_cats_sponsors_map", JSON.stringify(savedSponsors));
 
     saveCatsData();
     renderCatsGrid(catsList);
     updateStats();
+
+    // Sincronizar instantaneamente com a Nuvem (visível em todos os computadores e celulares)
+    saveSponsorshipToCloud(catKey, newSponsor);
   }
 
   // Registrar histórico da doação para a Área da Mansão (Comprovantes)
@@ -766,7 +899,10 @@ function renderCertificateCanvas(forceFallbackCat = false) {
   ctx.stroke();
 
   // 4. Cabeçalho de Textos
+  ctx.save();
   ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
   ctx.fillStyle = "#ffffff";
   ctx.font = "bold 44px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("MANSÃO DOS CATS • GUARUJÁ/SP", W / 2, 280);
@@ -775,11 +911,23 @@ function renderCertificateCanvas(forceFallbackCat = false) {
   ctx.font = "bold 32px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("🐾 CAMPANHA SOLIDÁRIA DE NATAL 🎄", W / 2, 335);
 
-  // 5. Faixa Dourada com Título Oficial
-  drawBanner(ctx, W / 2, 395, 860, 90, "#f5a623");
+  // 5. Faixa Dourada com Título Oficial (Perfeitamente centralizada e auto-ajustada)
+  const certBannerY = 395;
+  const certBannerH = 92;
+  const certBannerW = 880;
+  drawBanner(ctx, W / 2, certBannerY, certBannerW, certBannerH, "#f5a623");
+
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 42px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-  ctx.fillText("CERTIFICADO DE PADRINHO NOEL", W / 2, 458);
+  let certFontSize = 42;
+  ctx.font = `bold ${certFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  const certBannerText = "CERTIFICADO DE PADRINHO NOEL";
+  while (ctx.measureText(certBannerText).width > (certBannerW - 80) && certFontSize > 24) {
+    certFontSize -= 2;
+    ctx.font = `bold ${certFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  }
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(certBannerText, W / 2, certBannerY + certBannerH / 2);
 
   // 6. Textos do Gatinho e Padrinho
   ctx.fillStyle = "#0c3f47";
@@ -788,23 +936,35 @@ function renderCertificateCanvas(forceFallbackCat = false) {
 
   // Nome do Gatinho em Destaque Festivo
   ctx.fillStyle = "#d9383a";
-  ctx.font = "bold 72px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-  ctx.fillText(`✨ ${currentSponsorship.cat.name} ✨`, W / 2, 1185);
+  let catNameFontSize = 72;
+  ctx.font = `bold ${catNameFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  const catNameText = `✨ ${currentSponsorship.cat.name} ✨`;
+  while (ctx.measureText(catNameText).width > 860 && catNameFontSize > 36) {
+    catNameFontSize -= 3;
+    ctx.font = `bold ${catNameFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  }
+  ctx.fillText(catNameText, W / 2, 1185);
 
   // Card do Presente
   drawCardBox(ctx, W / 2 - 380, 1230, 760, 90, "rgba(255, 255, 255, 0.95)", "#24bdcf");
   ctx.fillStyle = "#124d56";
   ctx.font = "bold 34px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-  ctx.fillText(`Presente: ${currentSponsorship.giftName} 🎁`, W / 2, 1288);
+  ctx.fillText(`Presente: ${currentSponsorship.giftName} 🎁`, W / 2, 1275);
 
   // Padrinho Nome
   ctx.fillStyle = "#0c3b42";
   ctx.font = "bold 36px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-  ctx.fillText("Padrinho(a) Oficial:", W / 2, 1375);
+  ctx.fillText("Padrinho(a) Oficial:", W / 2, 1370);
 
   ctx.fillStyle = "#b85d19";
-  ctx.font = "bold 52px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
-  ctx.fillText(`❤️ ${currentSponsorship.sponsorName} ❤️`, W / 2, 1435);
+  let sponsorFontSize = 52;
+  ctx.font = `bold ${sponsorFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  const sponsorNameText = `❤️ ${currentSponsorship.sponsorName} ❤️`;
+  while (ctx.measureText(sponsorNameText).width > 860 && sponsorFontSize > 30) {
+    sponsorFontSize -= 3;
+    ctx.font = `bold ${sponsorFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+  }
+  ctx.fillText(sponsorNameText, W / 2, 1435);
 
   // 7. Sticker de Toque no Link dos Stories (Chama muita atenção!)
   drawStickerLink(ctx, W / 2, 1500, 520, 60);
@@ -832,6 +992,7 @@ function renderCertificateCanvas(forceFallbackCat = false) {
   ctx.fillStyle = "rgba(13, 67, 74, 0.85)";
   ctx.font = "bold 26px 'Nunito', sans-serif";
   ctx.fillText("Link na Bio: @mansaodoscats • Guarujá/SP • #Adote", W / 2, 1865);
+  ctx.restore();
 
   // 9. Desenhar Logo da Mansão
   drawLogoOnCanvas(ctx, W / 2, 150, 125);
@@ -889,6 +1050,68 @@ function drawLogoOnCanvas(ctx, cx, cy, size) {
   logoImg.src = logoSrc;
 }
 
+// Desenho vetorial de Gorrinho de Papai Noel (100% nítido, proporcional e perfeito no celular)
+function drawSantaHat(ctx, x, y, scale = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.rotate(-0.16); // Leve inclinação natalina charmosa
+
+  // Sombra suave do gorrinho
+  ctx.shadowColor = "rgba(0, 0, 0, 0.22)";
+  ctx.shadowBlur = 10;
+  ctx.shadowOffsetY = 4;
+
+  // 1. Corpo Vermelho Natalino do Gorro
+  ctx.fillStyle = "#d9383a";
+  ctx.beginPath();
+  ctx.moveTo(-45, 0);
+  ctx.bezierCurveTo(-40, -48, -15, -78, 24, -85);
+  ctx.bezierCurveTo(50, -88, 62, -68, 54, -46);
+  ctx.bezierCurveTo(48, -28, 42, -14, 45, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Brilho de profundidade
+  ctx.fillStyle = "#ef4444";
+  ctx.beginPath();
+  ctx.moveTo(-32, -4);
+  ctx.bezierCurveTo(-28, -42, -5, -65, 20, -74);
+  ctx.bezierCurveTo(15, -52, 5, -20, 0, -4);
+  ctx.closePath();
+  ctx.fill();
+
+  // 2. Pom-pom branco na ponta
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.15)";
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  ctx.arc(60, -52, 16, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#f1f5f9";
+  ctx.beginPath();
+  ctx.arc(58, -54, 12, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 3. Faixa de Pelúcia Branca na Base
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
+  ctx.shadowBlur = 8;
+  roundRect(ctx, -56, -4, 112, 28, 14);
+  ctx.fill();
+
+  // Puffs fofos de pelúcia na borda
+  ctx.fillStyle = "#f8fafc";
+  for (let bx = -44; bx <= 44; bx += 16) {
+    ctx.beginPath();
+    ctx.arc(bx, 10, 10, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
 function drawCatPhotoWithFallback(ctx, cx, cy, radius, photoUrl, catName) {
   ctx.save();
   ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
@@ -919,8 +1142,8 @@ function drawCatPhotoWithFallback(ctx, cx, cy, radius, photoUrl, catName) {
     ctx.arc(cx, cy, radius, 0, Math.PI * 2);
     ctx.stroke();
 
-    ctx.font = "95px sans-serif";
-    ctx.fillText("🎅", cx - radius + 50, cy - radius + 70);
+    // Gorrinho de Papai Noel vetorial na borda superior da foto
+    drawSantaHat(ctx, cx - radius * 0.52, cy - radius * 0.72, 1.05);
   };
 
   catImg.onerror = () => {
@@ -1003,8 +1226,8 @@ function drawVectorCatAvatar(ctx, cx, cy, radius, catName) {
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.stroke();
 
-  ctx.font = "95px sans-serif";
-  ctx.fillText("🎅", cx - radius + 50, cy - radius + 70);
+  // Gorrinho de Papai Noel vetorial
+  drawSantaHat(ctx, cx - radius * 0.52, cy - radius * 0.72, 1.05);
 }
 
 function roundRect(ctx, x, y, width, height, radius) {
@@ -1192,9 +1415,9 @@ function renderSupporterCardCanvas() {
   ctx.font = "bold 30px 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   ctx.fillText("🐾 CAMPANHA SOLIDÁRIA DE NATAL 🎄", W / 2, 335);
 
-  // 5. Faixa Dourada Oficial de Apoio - Alinhamento Matemático e Auto-ajuste para Mobile
+  // 5. Faixa Dourada Oficial de Apoio - 100% Centralizada Horizontal e Verticalmente
   const bannerY = 385;
-  const bannerH = 88;
+  const bannerH = 92;
   const bannerW = 880;
   drawBanner(ctx, W / 2, bannerY, bannerW, bannerH, "#f5a623");
 
@@ -1206,8 +1429,9 @@ function renderSupporterCardCanvas() {
     bannerFontSize -= 2;
     ctx.font = `bold ${bannerFontSize}px 'Fredoka', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
   }
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
   ctx.fillText(bannerText, W / 2, bannerY + bannerH / 2);
-  ctx.restore();
 
   // 6. Ilustração Central Fofa de Gatinho Natalino da Mansão
   const catCenterX = W / 2;
@@ -1216,7 +1440,6 @@ function renderSupporterCardCanvas() {
   drawVectorCatAvatar(ctx, catCenterX, catCenterY, catRadius, "Mansão");
 
   // 7. Texto Personalizado do Apoiador com Alinhamento e Espaçamento Impecáveis
-  ctx.save();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
@@ -1389,6 +1612,7 @@ function parseCsvText(csv) {
   let idxTags = header.indexOf("tags");
   let idxFoto = header.indexOf("foto");
   let idxHistorinha = header.indexOf("historinha");
+  let idxPadrinhos = header.findIndex(h => h.includes("padrinho") || h.includes("sponsor"));
 
   // Fallbacks de índice caso cabeçalho varie
   if (idxNome === -1) idxNome = 0;
@@ -1408,12 +1632,15 @@ function parseCsvText(csv) {
 
     const clean = (val) => val ? val.toString().trim() : "";
     
-    const nome = clean(cols[idxNome]).replace(/^["']|["']$/g, "").trim();
+    // Higienização completa do nome do gatinho (evita cards fantasmas como ,")
+    const rawNome = clean(cols[idxNome]).replace(/^["',.\s]+|["',.\s]+$/g, "").trim();
+    const alphaOnly = rawNome.replace(/[^a-zA-ZÀ-ÿ0-9]/g, "");
 
-    // Pular linhas vazias, fantasmas ou cabeçalhos duplicados
-    if (!nome || nome.length < 2 || nome === ',"' || nome.toLowerCase() === "nome") {
+    // Pular linhas vazias, fantasmas, apenas pontuações ou cabeçalhos repetidos
+    if (!rawNome || alphaOnly.length < 2 || rawNome.toLowerCase() === "nome") {
       continue;
     }
+    const nome = rawNome;
 
     const idade = clean(cols[idxIdade]).replace(/^["']|["']$/g, "").trim();
     const categoria = clean(cols[idxCategoria]).toLowerCase() || "aguardando";
@@ -1437,6 +1664,18 @@ function parseCsvText(csv) {
       }
     }
 
+    // Padrinhos preenchidos diretamente na planilha (caso a Fernanda adicione lá)
+    let sheetSponsors = [];
+    if (idxPadrinhos !== -1 && cols[idxPadrinhos]) {
+      const pRaw = clean(cols[idxPadrinhos]).replace(/^["']|["']$/g, "").trim();
+      if (pRaw) {
+        sheetSponsors = pRaw.split(/[,;\n]/).map(p => p.trim()).filter(p => p.length > 1).map(p => ({
+          name: p,
+          gift: "Presente de Natal"
+        }));
+      }
+    }
+
     cats.push({
       id: idCounter++,
       name: nome,
@@ -1446,8 +1685,8 @@ function parseCsvText(csv) {
       tags: cleanTags.length ? cleanTags : ["Carinhoso", "Castrado"],
       photo: foto || "assets/logo-mansao-dos-cats.jpg",
       bio: historinha,
-      sponsorsCount: 0,
-      sponsors: []
+      sponsorsCount: sheetSponsors.length,
+      sponsors: sheetSponsors
     });
   }
 
