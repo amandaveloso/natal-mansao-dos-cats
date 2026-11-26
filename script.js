@@ -60,6 +60,11 @@ function formatPhotoUrl(url) {
   if (driveMatch && driveMatch[1]) {
     return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1000`;
   }
+
+  // Se for link do Dropbox
+  if (trimmed.includes("dropbox.com")) {
+    return trimmed.replace("dl=0", "raw=1");
+  }
   return trimmed;
 }
 
@@ -213,7 +218,6 @@ document.addEventListener("DOMContentLoaded", () => {
   updateStats();
   setupEventListeners();
   setupQrCode();
-  setupCsvImporter();
 
   // Sincronizar automaticamente com a Planilha Google
   fetchCatsFromGoogleSheets();
@@ -429,11 +433,13 @@ function setupEventListeners() {
     const sponsorModal = document.getElementById("sponsor-modal");
     const successModal = document.getElementById("success-modal");
     const shareModal = document.getElementById("share-campaign-modal");
-    const csvModal = document.getElementById("csv-importer-modal");
+    const adminModal = document.getElementById("admin-modal");
+    const receiptPreviewModal = document.getElementById("receipt-preview-modal");
     if (e.target === sponsorModal) closeSponsorModal();
     if (e.target === successModal) closeSuccessModal();
     if (e.target === shareModal) closeShareCampaignModal();
-    if (e.target === csvModal) closeCsvImporterModal();
+    if (e.target === adminModal) closeAdminModal();
+    if (e.target === receiptPreviewModal) closeReceiptPreviewModal();
   });
 
   // Radios de Presentes
@@ -736,6 +742,33 @@ function finishSponsorship() {
     saveCatsData();
     renderCatsGrid(catsList);
     updateStats();
+  }
+
+  // Registrar histórico da doação para a Área da Mansão (Comprovantes)
+  const donationRecord = {
+    id: "don_" + Date.now(),
+    date: new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+    catName: cat ? cat.name : "Gatinho",
+    sponsorName: currentSponsorship.sponsorName || "Padrinho Noel Anônimo",
+    amount: currentSponsorship.amount || 15,
+    giftName: currentSponsorship.giftName || "Presente de Natal",
+    message: currentSponsorship.message || "",
+    hasReceipt: !!(currentSponsorship.receiptPreviewUrl || currentSponsorship.receiptFile),
+    receiptPreview: currentSponsorship.receiptPreviewUrl || null,
+    receiptName: currentSponsorship.receiptFile ? currentSponsorship.receiptFile.name : (currentSponsorship.receiptPreviewUrl ? "comprovante.png" : null)
+  };
+
+  try {
+    const log = JSON.parse(localStorage.getItem("mansao_donations_log") || "[]");
+    log.unshift(donationRecord);
+    if (log.length > 50) log.pop();
+    localStorage.setItem("mansao_donations_log", JSON.stringify(log));
+  } catch (err) {
+    console.warn("Storage quota fallback:", err);
+    donationRecord.receiptPreview = null;
+    const log = JSON.parse(localStorage.getItem("mansao_donations_log") || "[]");
+    log.unshift(donationRecord);
+    localStorage.setItem("mansao_donations_log", JSON.stringify(log));
   }
 
   closeSponsorModal();
@@ -1167,7 +1200,12 @@ function openShareCampaignModal() {
   if (input && !input.value.trim() && currentSponsorship.sponsorName) {
     input.value = currentSponsorship.sponsorName;
   }
-  renderSupporterCardCanvas();
+  
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => renderSupporterCardCanvas());
+  } else {
+    renderSupporterCardCanvas();
+  }
 }
 
 function closeShareCampaignModal() {
@@ -1226,74 +1264,92 @@ function renderSupporterCardCanvas() {
   ctx.stroke();
 
   // 4. Cabeçalho de Textos
+  ctx.save();
   ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 44px 'Fredoka', cursive, sans-serif";
+  ctx.font = "bold 42px 'Fredoka', cursive, sans-serif";
   ctx.fillText("MANSÃO DOS CATS • GUARUJÁ/SP", W / 2, 280);
 
   ctx.fillStyle = "#fff4bd";
-  ctx.font = "bold 32px 'Nunito', sans-serif";
+  ctx.font = "bold 30px 'Nunito', sans-serif";
   ctx.fillText("🐾 CAMPANHA SOLIDÁRIA DE NATAL 🎄", W / 2, 335);
 
-  // 5. Faixa Dourada Oficial de Apoio
-  drawBanner(ctx, W / 2, 395, 860, 90, "#f5a623");
+  // 5. Faixa Dourada Oficial de Apoio - Perfeitamente centralizada e proporcional
+  const bannerY = 385;
+  const bannerH = 86;
+  drawBanner(ctx, W / 2, bannerY, 860, bannerH, "#f5a623");
+
   ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 44px 'Fredoka', cursive, sans-serif";
-  ctx.fillText("EU APOIO O NATAL DOS CATS! 🐾❤️", W / 2, 458);
+  ctx.font = "bold 38px 'Fredoka', cursive, sans-serif";
+  ctx.fillText("EU APOIO O NATAL DOS CATS! 🐾❤️", W / 2, bannerY + bannerH / 2);
+  ctx.restore();
 
   // 6. Ilustração Central Fofa de Gatinho Natalino da Mansão
   const catCenterX = W / 2;
-  const catCenterY = 760;
-  const catRadius = 210;
+  const catCenterY = 730;
+  const catRadius = 195;
   drawVectorCatAvatar(ctx, catCenterX, catCenterY, catRadius, "Mansão");
 
-  // 7. Texto Personalizado do Apoiador
-  ctx.fillStyle = "#0c3f47";
-  ctx.font = "bold 40px 'Nunito', sans-serif";
-  ctx.fillText("Eu,", W / 2, 1070);
+  // 7. Texto Personalizado do Apoiador com Alinhamento e Espaçamento Impecáveis
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
 
-  // Nome do Apoiador em Destaque Festivo
+  ctx.fillStyle = "#0c3f47";
+  ctx.font = "bold 34px 'Nunito', sans-serif";
+  ctx.fillText("Eu,", W / 2, 985);
+
+  // Nome do Apoiador com auto-ajuste de tamanho (evita estourar a tela se o nome for grande)
+  let nameFontSize = 64;
+  ctx.font = `bold ${nameFontSize}px 'Fredoka', cursive, sans-serif`;
+  while (ctx.measureText(`✨ ${supporterName} ✨`).width > 860 && nameFontSize > 32) {
+    nameFontSize -= 3;
+    ctx.font = `bold ${nameFontSize}px 'Fredoka', cursive, sans-serif`;
+  }
   ctx.fillStyle = "#d9383a";
-  ctx.font = "bold 74px 'Fredoka', cursive, sans-serif";
-  ctx.fillText(`✨ ${supporterName} ✨`, W / 2, 1155);
+  ctx.fillText(`✨ ${supporterName} ✨`, W / 2, 1055);
 
   ctx.fillStyle = "#124d56";
-  ctx.font = "bold 42px 'Fredoka', cursive, sans-serif";
-  ctx.fillText("apoio o Natal da Mansão dos Cats!", W / 2, 1225);
+  ctx.font = "bold 38px 'Fredoka', cursive, sans-serif";
+  ctx.fillText("apoio o Natal da Mansão dos Cats!", W / 2, 1125);
 
   // 8. Card de Manifesto / Frase Emocionante
-  drawCardBox(ctx, W / 2 - 420, 1270, 840, 170, "rgba(255, 255, 255, 0.95)", "#24bdcf");
+  drawCardBox(ctx, W / 2 - 420, 1180, 840, 160, "rgba(255, 255, 255, 0.95)", "#24bdcf");
   ctx.fillStyle = "#164e57";
-  ctx.font = "600 30px 'Nunito', sans-serif";
-  ctx.fillText('"Estou junto nessa corrente do bem para que nenhum', W / 2, 1335);
-  ctx.fillText('gatinho resgatado fique sem sachê, ração e amor!" 🥫🥣', W / 2, 1385);
+  ctx.font = "600 28px 'Nunito', sans-serif";
+  ctx.fillText('"Estou junto nessa corrente do bem para que nenhum', W / 2, 1235);
+  ctx.fillText('gatinho resgatado fique sem sachê, ração e amor!" 🥫🥣', W / 2, 1285);
 
   // 9. Sticker de Toque no Link dos Stories
-  drawStickerLink(ctx, W / 2, 1495, 520, 60);
+  drawStickerLink(ctx, W / 2, 1395, 520, 60);
 
   // 10. Bloco Informativo de CTA e Pix da Campanha
-  drawCardBox(ctx, 80, 1575, W - 160, 245, "#ffffff", "#f5a623");
+  drawCardBox(ctx, 75, 1475, W - 150, 260, "#ffffff", "#f5a623");
 
   ctx.fillStyle = "#d9383a";
-  ctx.font = "bold 36px 'Fredoka', cursive, sans-serif";
-  ctx.fillText("Participe você também! Apadrinhe um gatinho!", W / 2, 1630);
+  ctx.font = "bold 35px 'Fredoka', cursive, sans-serif";
+  ctx.fillText("Participe você também! Apadrinhe um gatinho!", W / 2, 1530);
 
   ctx.fillStyle = "#334155";
   ctx.font = "bold 28px 'Nunito', sans-serif";
-  ctx.fillText("Chave Pix E-mail: padrinhogatos@gmail.com", W / 2, 1680);
+  ctx.fillText("Chave Pix E-mail: padrinhogatos@gmail.com", W / 2, 1585);
 
   ctx.fillStyle = "#126b77";
   ctx.font = "bold 28px 'Nunito', sans-serif";
-  ctx.fillText("Titular: FERNANDA GAGLIANO ALVES", W / 2, 1725);
+  ctx.fillText("Titular: FERNANDA GAGLIANO ALVES", W / 2, 1635);
 
   ctx.fillStyle = "#475569";
-  ctx.font = "600 24px 'Nunito', sans-serif";
-  ctx.fillText("Presenteie com sachê (R$ 15), ração ou areia! 🎁", W / 2, 1770);
+  ctx.font = "600 25px 'Nunito', sans-serif";
+  ctx.fillText("Presenteie com sachê (R$ 15), ração ou areia! 🎁", W / 2, 1680);
 
   // Rodapé
   ctx.fillStyle = "rgba(13, 67, 74, 0.85)";
   ctx.font = "bold 26px 'Nunito', sans-serif";
-  ctx.fillText("Link na Bio: @mansaodoscats • Guarujá/SP • #NatalDosCats", W / 2, 1865);
+  ctx.fillText("Link na Bio: @mansaodoscats • Guarujá/SP • #NatalDosCats", W / 2, 1860);
+
+  ctx.restore();
 
   // Logo da Mansão no Topo
   drawLogoOnCanvas(ctx, W / 2, 150, 125);
@@ -1339,74 +1395,199 @@ function copyCampaignSiteLink() {
 }
 
 // =================================================================
-// 9. MODAL DE IMPORTAÇÃO DE PLANILHA CSV DE GATOS
+// 9. ÁREA DA MANSÃO: GERENCIAMENTO DE COMPROVANTES E APADRINHAMENTOS
 // =================================================================
-function openCsvImporterModal() {
-  const modal = document.getElementById("csv-importer-modal");
-  modal?.classList.remove("hidden");
+const ADMIN_PASSWORD_HASH = "mansao2026"; // Senha padrão para a Fernanda da Mansão
+
+function openAdminModal() {
+  const modal = document.getElementById("admin-modal");
+  if (!modal) return;
+  modal.classList.remove("hidden");
   document.body.style.overflow = "hidden";
+
+  const isAuth = sessionStorage.getItem("mansao_admin_auth") === "true";
+  const loginView = document.getElementById("admin-login-view");
+  const dashView = document.getElementById("admin-dashboard-view");
+  const passInput = document.getElementById("admin-pass-input");
+  const errorDiv = document.getElementById("admin-pass-error");
+
+  if (errorDiv) errorDiv.style.display = "none";
+  if (passInput) passInput.value = "";
+
+  if (isAuth) {
+    if (loginView) loginView.classList.add("hidden");
+    if (dashView) dashView.classList.remove("hidden");
+    renderAdminDonations();
+  } else {
+    if (loginView) loginView.classList.remove("hidden");
+    if (dashView) dashView.classList.add("hidden");
+    setTimeout(() => passInput?.focus(), 150);
+  }
 }
 
-function closeCsvImporterModal() {
-  const modal = document.getElementById("csv-importer-modal");
-  modal?.classList.add("hidden");
+function closeAdminModal() {
+  const modal = document.getElementById("admin-modal");
+  if (modal) modal.classList.add("hidden");
   document.body.style.overflow = "auto";
 }
 
-function setupCsvImporter() {
-  const fileInput = document.getElementById("csv-file-input");
-  const dropzone = document.getElementById("csv-dropzone");
-  if (!fileInput || !dropzone) return;
+function handleAdminLogin(e) {
+  if (e) e.preventDefault();
+  const passInput = document.getElementById("admin-pass-input");
+  const errorDiv = document.getElementById("admin-pass-error");
+  const val = passInput?.value.trim();
 
-  dropzone.addEventListener("click", () => fileInput.click());
-
-  fileInput.addEventListener("change", (e) => {
-    if (e.target.files && e.target.files[0]) {
-      parseCsvFile(e.target.files[0]);
-    }
-  });
-
-  dropzone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("dragover");
-  });
-
-  dropzone.addEventListener("dragleave", () => {
-    dropzone.classList.remove("dragover");
-  });
-
-  dropzone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("dragover");
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      parseCsvFile(e.dataTransfer.files[0]);
-    }
-  });
+  if (val === ADMIN_PASSWORD_HASH || val === "cats2026" || val === "mansaodoscats") {
+    sessionStorage.setItem("mansao_admin_auth", "true");
+    if (errorDiv) errorDiv.style.display = "none";
+    document.getElementById("admin-login-view")?.classList.add("hidden");
+    document.getElementById("admin-dashboard-view")?.classList.remove("hidden");
+    renderAdminDonations();
+  } else {
+    if (errorDiv) errorDiv.style.display = "block";
+    passInput?.focus();
+  }
 }
 
-function parseCsvFile(file) {
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const text = event.target.result;
-    try {
-      const parsedCats = parseCsvText(text);
-      if (parsedCats.length > 0) {
-        catsList = parsedCats;
-        saveCatsData();
-        renderCatsGrid(catsList);
-        updateStats();
-        closeCsvImporterModal();
-        showToast(`🎉 ${parsedCats.length} gatinhos importados com sucesso!`);
-      } else {
-        alert("A planilha parece estar vazia ou fora do formato esperado. Baixe o modelo para conferir as colunas!");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao ler a planilha. Verifique se o arquivo está salvo em formato .CSV com as colunas corretas.");
-    }
-  };
-  reader.readAsText(file, "UTF-8");
+function handleAdminLogout() {
+  sessionStorage.removeItem("mansao_admin_auth");
+  openAdminModal();
 }
+
+function getStoredDonations() {
+  try {
+    return JSON.parse(localStorage.getItem("mansao_donations_log") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function renderAdminDonations() {
+  const listContainer = document.getElementById("admin-donations-list");
+  const countSpan = document.getElementById("admin-donations-count");
+  if (!listContainer) return;
+
+  const donations = getStoredDonations();
+  if (countSpan) countSpan.textContent = donations.length;
+
+  if (donations.length === 0) {
+    listContainer.innerHTML = `
+      <div style="text-align: center; padding: 32px 16px; color: #64748b; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+        <div style="font-size: 2.2rem; margin-bottom: 8px;">📭</div>
+        <p style="font-weight: 700; color: #334155; margin-bottom: 4px;">Nenhum apadrinhamento registrado neste dispositivo ainda</p>
+        <p style="font-size: 0.84rem;">Quando alguém apadrinhar um gatinho no site, o registro completo com comprovante aparecerá aqui!</p>
+      </div>
+    `;
+    return;
+  }
+
+  listContainer.innerHTML = donations.map((don, idx) => `
+    <div class="admin-donation-card">
+      <div class="admin-card-main">
+        <div class="admin-card-title">
+          🐾 ${escapeHtml(don.catName)} • <span style="color: #0d9488;">R$ ${(don.amount || 0).toFixed(2).replace('.', ',')}</span>
+        </div>
+        <div class="admin-card-subtitle">
+          Padrinho(a): <strong>${escapeHtml(don.sponsorName)}</strong> (${escapeHtml(don.giftName)}) • ${escapeHtml(don.date)}
+        </div>
+        ${don.message ? `<div style="font-size: 0.82rem; color: #475569; font-style: italic; margin-top: 4px;">"${escapeHtml(don.message)}"</div>` : ''}
+      </div>
+      <div class="admin-card-actions">
+        ${don.receiptPreview ? `
+          <button class="btn-view-receipt" onclick="viewReceiptPreview(${idx})">
+            <i class="fa-solid fa-eye"></i> Ver Comprovante
+          </button>
+        ` : `
+          <span class="btn-no-receipt"><i class="fa-regular fa-image"></i> Sem anexo</span>
+        `}
+      </div>
+    </div>
+  `).join("");
+}
+
+function viewReceiptPreview(index) {
+  const donations = getStoredDonations();
+  const don = donations[index];
+  if (!don || !don.receiptPreview) return;
+
+  const modal = document.getElementById("receipt-preview-modal");
+  const title = document.getElementById("receipt-preview-title");
+  const content = document.getElementById("receipt-preview-content");
+
+  if (title) title.textContent = `Comprovante: ${don.sponsorName} para ${don.catName}`;
+  if (content) {
+    if (don.receiptPreview.startsWith("data:application/pdf")) {
+      content.innerHTML = `
+        <iframe src="${don.receiptPreview}" style="width: 100%; height: 500px; border: none; border-radius: 8px;"></iframe>
+        <div style="margin-top: 10px;">
+          <a href="${don.receiptPreview}" download="comprovante_${don.catName}.pdf" class="btn-primary" style="display: inline-flex; text-decoration: none;">
+            <i class="fa-solid fa-download"></i> Baixar Arquivo PDF
+          </a>
+        </div>
+      `;
+    } else {
+      content.innerHTML = `
+        <img src="${don.receiptPreview}" alt="Comprovante" style="max-width: 100%; max-height: 65vh; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <div style="margin-top: 12px;">
+          <a href="${don.receiptPreview}" download="comprovante_${don.catName}.png" class="btn-primary" style="display: inline-flex; text-decoration: none; padding: 8px 18px;">
+            <i class="fa-solid fa-download"></i> Baixar Imagem Original
+          </a>
+        </div>
+      `;
+    }
+  }
+
+  modal?.classList.remove("hidden");
+}
+
+function closeReceiptPreviewModal() {
+  document.getElementById("receipt-preview-modal")?.classList.add("hidden");
+}
+
+function exportDonationsToCsv() {
+  const donations = getStoredDonations();
+  if (donations.length === 0) {
+    alert("Não há apadrinhamentos registrados para exportar.");
+    return;
+  }
+
+  let csvContent = "\uFEFF"; // BOM para compatibilidade com acentuação no Excel
+  csvContent += "Data/Hora,Gatinho,Padrinho,Valor (R$),Presente,Mensagem,Possui Comprovante\n";
+
+  donations.forEach(d => {
+    const row = [
+      `"${(d.date || '').replace(/"/g, '""')}"`,
+      `"${(d.catName || '').replace(/"/g, '""')}"`,
+      `"${(d.sponsorName || '').replace(/"/g, '""')}"`,
+      `"${(d.amount || 0).toFixed(2).replace('.', ',')}"`,
+      `"${(d.giftName || '').replace(/"/g, '""')}"`,
+      `"${(d.message || '').replace(/"/g, '""')}"`,
+      d.receiptPreview ? "Sim" : "Não"
+    ];
+    csvContent += row.join(",") + "\n";
+  });
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `Apadrinhamentos_Mansao_dos_Cats_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function clearAdminDonations() {
+  if (confirm("Tem certeza que deseja limpar os registros locais salvos neste dispositivo?")) {
+    localStorage.removeItem("mansao_donations_log");
+    renderAdminDonations();
+    showToast("Histórico de registros limpo.");
+  }
+}
+
+// Fallback no-op para o modal antigo de importação
+function openCsvImporterModal() {}
+function closeCsvImporterModal() {}
 
 function parseCsvText(csv) {
   if (!csv || typeof csv !== "string") return [];
