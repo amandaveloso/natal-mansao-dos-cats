@@ -172,11 +172,17 @@ const defaultCatsData = [
   }
 ];
 
-// Limpeza de versões anteriores para começar com os gatos reais e contadores em zero
+// Limpeza de versões e testes anteriores para sincronizar 100% puro com o Supabase oficial
 localStorage.removeItem("mansao_cats_data");
 localStorage.removeItem("mansao_cats_data_v2");
 localStorage.removeItem("mansao_cats_data_v3");
 localStorage.removeItem("mansao_cats_data_v4");
+
+if (localStorage.getItem("mansao_supabase_synced_v1") !== "true") {
+  localStorage.removeItem("mansao_cats_sponsors_map");
+  localStorage.removeItem("mansao_cats_data_v5");
+  localStorage.setItem("mansao_supabase_synced_v1", "true");
+}
 
 // Carregar gatos do LocalStorage v5
 let catsList = loadCatsData();
@@ -259,30 +265,21 @@ async function syncSponsorsFromCloud() {
       });
     }
 
-    // Obter dados locais do localStorage e mesclar com resiliência
-    const localMap = JSON.parse(localStorage.getItem("mansao_cats_sponsors_map") || "{}");
-    const mergedMap = { ...localMap, ...cloudMap };
+    // Atualizar o cache local fielmente com o estado do banco Supabase
+    localStorage.setItem("mansao_cats_sponsors_map", JSON.stringify(cloudMap));
 
-    localStorage.setItem("mansao_cats_sponsors_map", JSON.stringify(mergedMap));
-
-    // Aplicar na lista viva de gatinhos
-    let hasChanges = false;
+    // Aplicar a lista exata do Supabase em todos os gatinhos (se estiver vazio no banco, limpa no site)
     catsList.forEach(cat => {
       const catKey = cat.name.toLowerCase().trim();
-      const currentList = mergedMap[catKey] || [];
-      if (currentList.length > 0) {
-        cat.sponsors = currentList;
-        cat.sponsorsCount = currentList.length;
-        hasChanges = true;
-      }
+      const currentList = cloudMap[catKey] || [];
+      cat.sponsors = currentList;
+      cat.sponsorsCount = currentList.length;
     });
 
-    if (hasChanges) {
-      saveCatsData();
-      renderCatsGrid(catsList);
-      updateStats();
-      console.log("🌟 Padrinhos sincronizados do Supabase com sucesso!");
-    }
+    saveCatsData();
+    renderCatsGrid(catsList);
+    updateStats();
+    console.log("🌟 Padrinhos sincronizados do Supabase com sucesso!");
   } catch (err) {
     console.warn("Supabase indisponível no momento, utilizando cache local:", err);
   }
