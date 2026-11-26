@@ -468,6 +468,8 @@ function setupEventListeners() {
   // Navegação do Fluxo (Steps)
   document.getElementById("btn-goto-step-2")?.addEventListener("click", goToStep2);
   document.getElementById("btn-backto-step-1")?.addEventListener("click", () => switchStep(1));
+  document.getElementById("btn-goto-step-3")?.addEventListener("click", () => switchStep(3));
+  document.getElementById("btn-backto-step-2")?.addEventListener("click", () => switchStep(2));
   document.getElementById("btn-finish-sponsorship")?.addEventListener("click", finishSponsorship);
 
   // Copiar Chave Pix
@@ -526,7 +528,7 @@ function switchStep(stepNumber) {
   document.querySelectorAll(".step-screen").forEach(s => s.classList.remove("active"));
   document.getElementById(`screen-step-${stepNumber}`)?.classList.add("active");
 
-  for (let i = 1; i <= 2; i++) {
+  for (let i = 1; i <= 3; i++) {
     const indicator = document.getElementById(`indicator-step-${i}`);
     if (indicator) {
       indicator.classList.remove("active", "completed");
@@ -1323,10 +1325,18 @@ function copyCampaignSiteLink() {
 }
 
 // =================================================================
-// 9. ÁREA DA MANSÃO: GERENCIAMENTO DE COMPROVANTES E APADRINHAMENTOS
-// =================================================================
 // 9. ENVIO DO COMPROVANTE DIRETO POR E-MAIL PARA A MANSÃO
 // =================================================================
+function handleSendEmailAndPrepare() {
+  sendReceiptByEmail();
+  const btn = document.getElementById("btn-action-send-email");
+  if (btn) {
+    btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> E-mail Aberto! Anexe o print e envie`;
+    btn.style.background = "#10b981";
+  }
+  showToast("Abrindo seu aplicativo de e-mail com tudo pronto! 📬");
+}
+
 function sendReceiptByEmail() {
   const catName = currentSponsorship.cat ? currentSponsorship.cat.name : "Gatinho";
   const sponsorName = currentSponsorship.sponsorName || "Padrinho";

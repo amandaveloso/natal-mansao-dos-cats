@@ -365,7 +365,11 @@
         </div>
         <div class="step-line"></div>
         <div class="step-indicator" id="indicator-step-2">
-          <span>2</span> Pagamento Pix
+          <span>2</span> Pix
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" id="indicator-step-3">
+          <span>3</span> Comprovante
         </div>
       </div>
 
@@ -517,8 +521,59 @@
           <button class="btn-secondary" id="btn-backto-step-1">
             <i class="fa-solid fa-arrow-left"></i> Voltar
           </button>
+          <button class="btn-primary" id="btn-goto-step-3">
+            Já fiz o Pix! Enviar Comprovante <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Envio de Comprovante por E-mail (Rápido e Automático) -->
+      <div class="step-screen" id="screen-step-3">
+        <h4 class="step-heading">
+          <i class="fa-solid fa-envelope-circle-check"></i> Envio do Comprovante
+        </h4>
+        <p class="step-desc">
+          Última etapa para validar seu apadrinhamento e carimbar seu Certificado Oficial de Padrinho Noel:
+        </p>
+
+        <div class="email-proof-card">
+          <div class="email-proof-badge">
+            <i class="fa-solid fa-shield-heart"></i> Quase lá! Etapa de Confirmação
+          </div>
+          <h3>Envie o comprovante para liberar o Certificado! 📜✨</h3>
+          <p class="email-proof-desc">
+            Para que a Fernanda possa conferir a doação e colocar o nome do gatinho como apadrinhado, basta nos mandar o comprovante por e-mail.
+          </p>
+
+          <div class="quick-email-explainer">
+            <div class="explainer-item">
+              <i class="fa-solid fa-bolt" style="color: #f59e1b;"></i>
+              <div><strong>Super rápido:</strong> leva só 5 segundinhos!</div>
+            </div>
+            <div class="explainer-item">
+              <i class="fa-solid fa-wand-magic-sparkles" style="color: #24bdcf;"></i>
+              <div><strong>Tudo pronto:</strong> ao clicar, o e-mail, assunto e dados do gatinho já vêm preenchidos automaticamente.</div>
+            </div>
+            <div class="explainer-item">
+              <i class="fa-solid fa-paperclip" style="color: #10b981;"></i>
+              <div>Você só precisa <strong>anexar o print do Pix</strong> e clicar em enviar!</div>
+            </div>
+          </div>
+
+          <!-- Botão Principal de Envio por E-mail -->
+          <button type="button" class="btn-open-email-cta" id="btn-action-send-email" onclick="handleSendEmailAndPrepare()">
+            <i class="fa-solid fa-envelope-open-text"></i> Abrir E-mail e Enviar Comprovante
+          </button>
+          
+          <span class="email-direct-hint">Destinatário oficial: <strong>padrinhogatos@gmail.com</strong></span>
+        </div>
+
+        <div class="modal-footer-actions dual" style="margin-top: 18px;">
+          <button class="btn-secondary" id="btn-backto-step-2">
+            <i class="fa-solid fa-arrow-left"></i> Voltar ao Pix
+          </button>
           <button class="btn-primary success-btn" id="btn-finish-sponsorship">
-            <i class="fa-solid fa-check"></i> Já fiz o Pix! Concluir e Gerar Certificado 🎉
+            <i class="fa-solid fa-check"></i> Já enviei! Emitir meu Certificado 🎉
           </button>
         </div>
       </div>
