@@ -333,11 +333,6 @@
 
     <div class="footer-bottom text-center">
       <p>© 2026 Mansão dos Cats — Campanha Solidária de Natal. Feito com amor pelos ronrons! 🐾❤️</p>
-      <p style="margin-top: 10px;">
-        <a href="javascript:void(0)" onclick="openAdminModal()" class="admin-access-link" style="color: rgba(255,255,255,0.45); font-size: 0.82rem; text-decoration: none; padding: 4px 8px; border-radius: 6px; transition: all 0.2s;">
-          <i class="fa-solid fa-lock"></i> Área da Mansão (Comprovantes)
-        </a>
-      </p>
     </div>
   </footer>
 
@@ -640,6 +635,10 @@
           <button class="btn-copy-caption" id="btn-copy-caption">
             <i class="fa-solid fa-copy"></i> Copiar Legenda Pronta com Link
           </button>
+
+          <button class="btn-email-receipt" id="btn-send-email-receipt" onclick="sendReceiptByEmail()">
+            <i class="fa-solid fa-envelope"></i> Enviar Comprovante por E-mail para a Fer
+          </button>
         </div>
       </div>
 
@@ -704,103 +703,6 @@
         <div style="margin-top: 18px; background: #eaf8fa; padding: 12px 16px; border-radius: 12px; font-size: 0.85rem; color: #145963;">
           <i class="fa-brands fa-instagram"></i> <strong>Dica de ouro:</strong> Poste a imagem nos seus Stories e coloque a figurinha de <strong>Link</strong> apontando para o site da Mansão marcando <strong>@mansaodoscats</strong>!
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- =============================================================== -->
-  <!-- MODAL DE ADMINISTRAÇÃO / COMPROVANTES (ÁREA DA MANSÃO) -->
-  <!-- =============================================================== -->
-  <div id="admin-modal" class="modal-overlay hidden" aria-modal="true" role="dialog">
-    <div class="modal-wrapper admin-modal-wrapper">
-      <button class="modal-close-btn" onclick="closeAdminModal()" aria-label="Fechar">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <!-- Painel de Login / Senha -->
-      <div id="admin-login-view" class="text-center" style="padding: 20px 10px;">
-        <div style="font-size: 2.8rem; margin-bottom: 12px;">🔐🐾</div>
-        <h3 style="font-size: 1.6rem; color: #0f4b54; margin-bottom: 8px;">Área Restrita da Mansão</h3>
-        <p style="font-size: 0.92rem; color: #4a5568; max-width: 420px; margin: 0 auto 20px;">
-          Digite a senha de acesso da organização para visualizar os comprovantes e o histórico de apadrinhamentos registrados.
-        </p>
-
-        <form onsubmit="handleAdminLogin(event)" style="max-width: 320px; margin: 0 auto;">
-          <div class="form-group" style="margin-bottom: 15px;">
-            <input type="password" id="admin-pass-input" placeholder="Digite a senha..." autocomplete="current-password" style="width: 100%; padding: 12px 16px; border: 2px solid #bcebf1; border-radius: 12px; font-size: 1rem; text-align: center; outline: none;">
-            <div id="admin-pass-error" style="color: #e53e3e; font-size: 0.85rem; margin-top: 6px; display: none;">Senha incorreta. Tente novamente!</div>
-          </div>
-          <button type="submit" class="btn-primary full" style="justify-content: center;">
-            <i class="fa-solid fa-unlock"></i> Acessar Painel
-          </button>
-        </form>
-      </div>
-
-      <!-- Painel de Gerenciamento de Comprovantes (Após login) -->
-      <div id="admin-dashboard-view" class="hidden">
-        <div class="admin-header">
-          <div>
-            <h3 style="font-size: 1.5rem; color: #0f4b54; margin-bottom: 4px;">
-              <i class="fa-solid fa-folder-closed" style="color: #24bdcf;"></i> Comprovantes & Padrinhos
-            </h3>
-            <p style="font-size: 0.85rem; color: #52797e;">
-              Gerenciamento oficial da Campanha de Natal da Mansão dos Cats
-            </p>
-          </div>
-          <button class="btn-secondary" onclick="handleAdminLogout()" style="padding: 6px 14px; font-size: 0.82rem;">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i> Sair
-          </button>
-        </div>
-
-        <!-- Barra de Ações Rápidas -->
-        <div class="admin-quick-actions">
-          <a href="https://drive.google.com" target="_blank" rel="noopener noreferrer" class="btn-admin-action" id="btn-admin-drive">
-            <i class="fa-brands fa-google-drive" style="color: #10b981; font-size: 1.2rem;"></i>
-            <span>Pasta no Google Drive</span>
-          </a>
-          <button class="btn-admin-action" onclick="exportDonationsToCsv()">
-            <i class="fa-solid fa-file-csv" style="color: #2563eb; font-size: 1.2rem;"></i>
-            <span>Exportar Planilha (CSV)</span>
-          </button>
-          <button class="btn-admin-action" onclick="clearAdminDonations()">
-            <i class="fa-solid fa-trash-can" style="color: #ef4444; font-size: 1.1rem;"></i>
-            <span>Limpar Registros Locais</span>
-          </button>
-        </div>
-
-        <!-- Informação Importante para a Fernanda -->
-        <div class="admin-notice-box">
-          <i class="fa-solid fa-circle-check" style="color: #0d9488; font-size: 1.2rem;"></i>
-          <div>
-            <strong>Dica para a Fernanda:</strong> Como as doações são via Pix oficial para <code>padrinhogatos@gmail.com</code> (Titular: <strong>FERNANDA GAGLIANO ALVES</strong>), você também confere 100% das entradas diretamente no extrato do seu aplicativo bancário!
-          </div>
-        </div>
-
-        <!-- Tabela / Lista de Comprovantes Registrados -->
-        <div class="admin-table-container">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h4 style="font-size: 1.05rem; color: #134e56; margin: 0;">
-              Apadrinhamentos Registrados (<span id="admin-donations-count">0</span>)
-            </h4>
-          </div>
-          <div id="admin-donations-list" class="admin-donations-list">
-            <!-- Preenchido dinamicamente via JS -->
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- MODAL DE PREVIEW DO COMPROVANTE (IMAGEM / PDF) -->
-  <div id="receipt-preview-modal" class="modal-overlay hidden" style="z-index: 10001;">
-    <div class="modal-wrapper" style="max-width: 650px; text-align: center;">
-      <button class="modal-close-btn" onclick="closeReceiptPreviewModal()" aria-label="Fechar">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      <h3 id="receipt-preview-title" style="color: #0f4b54; margin-bottom: 12px; font-size: 1.3rem;">Comprovante de Apadrinhamento</h3>
-      <div id="receipt-preview-content" style="max-height: 75vh; overflow-y: auto; border-radius: 12px; background: #f8fafc; padding: 10px;">
-        <!-- Imagem ou PDF -->
       </div>
     </div>
   </div>
