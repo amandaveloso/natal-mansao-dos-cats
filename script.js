@@ -146,12 +146,13 @@ const defaultCatsData = [
 localStorage.removeItem("mansao_cats_data");
 localStorage.removeItem("mansao_cats_data_v2");
 localStorage.removeItem("mansao_cats_data_v3");
+localStorage.removeItem("mansao_cats_data_v4");
 
-// Carregar gatos do LocalStorage v4
+// Carregar gatos do LocalStorage v5
 let catsList = loadCatsData();
 
 function loadCatsData() {
-  const saved = localStorage.getItem("mansao_cats_data_v4");
+  const saved = localStorage.getItem("mansao_cats_data_v5");
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -161,14 +162,14 @@ function loadCatsData() {
         sponsorsCount: Array.isArray(c.sponsors) ? c.sponsors.length : (c.sponsorsCount || 0)
       }));
     } catch (e) {
-      console.warn("Erro ao ler localStorage v4", e);
+      console.warn("Erro ao ler localStorage v5", e);
     }
   }
   return defaultCatsData;
 }
 
 function saveCatsData() {
-  localStorage.setItem("mansao_cats_data_v4", JSON.stringify(catsList));
+  localStorage.setItem("mansao_cats_data_v5", JSON.stringify(catsList));
 }
 
 // Estado da Sessão Atual de Doação
@@ -1401,45 +1402,133 @@ function parseCsvFile(file) {
 }
 
 function parseCsvText(csv) {
-  const lines = csv.split(/\r?\n/).filter(line => line.trim().length > 0);
-  if (lines.length < 2) return [];
+  if (!csv || typeof csv !== "string") return [];
 
-  // Cabeçalho esperado: nome,idade,categoria,tipo,tags,foto,historinha
+  let rows = [];
+
+  // 1. Tentar com PapaParse (padrão ouro em CSV com quebras de linha e aspas)
+  if (typeof Papa !== "undefined" && Papa.parse) {
+    const parsed = Papa.parse(csv, {
+      header: false,
+      skipEmptyLines: true
+    });
+    rows = parsed.data || [];
+  } else {
+    // 2. Fallback robusto RFC 4180 (respeita quebras de linha dentro de células com aspas)
+    rows = parseCsvRFC4180(csv);
+  }
+
+  if (rows.length < 2) return [];
+
+  // Identificar índices das colunas a partir do cabeçalho
+  const header = rows[0].map(h => (h || "").toString().toLowerCase().trim().replace(/["']/g, ""));
+  let idxNome = header.indexOf("nome");
+  let idxIdade = header.indexOf("idade");
+  let idxCategoria = header.indexOf("categoria");
+  let idxTipo = header.indexOf("tipo");
+  let idxTags = header.indexOf("tags");
+  let idxFoto = header.indexOf("foto");
+  let idxHistorinha = header.indexOf("historinha");
+
+  // Fallbacks de índice caso cabeçalho varie
+  if (idxNome === -1) idxNome = 0;
+  if (idxIdade === -1) idxIdade = 1;
+  if (idxCategoria === -1) idxCategoria = 2;
+  if (idxTipo === -1) idxTipo = 3;
+  if (idxTags === -1) idxTags = 4;
+  if (idxFoto === -1) idxFoto = 5;
+  if (idxHistorinha === -1) idxHistorinha = 6;
+
   const cats = [];
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    // Regex simples para capturar valores com aspas ou vírgulas
-    const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(",");
+  let idCounter = 1;
+
+  for (let i = 1; i < rows.length; i++) {
+    const cols = rows[i];
+    if (!cols || cols.length === 0) continue;
+
+    const clean = (val) => val ? val.toString().trim() : "";
     
-    if (cols.length >= 6) {
-      const clean = (val) => val ? val.replace(/^["']|["']$/g, "").trim() : "";
-      
-      const nome = clean(cols[0]);
-      const idade = clean(cols[1]);
-      const categoria = clean(cols[2]) || "aguardando";
-      const tipo = clean(cols[3]) || "adulto";
-      const tagsRaw = clean(cols[4]);
-      const fotoRaw = clean(cols[5]);
-      const foto = formatPhotoUrl(fotoRaw);
-      const historinha = clean(cols[6] || `Gatinho resgatado pela Mansão dos Cats.`);
+    const nome = clean(cols[idxNome]).replace(/^["']|["']$/g, "").trim();
 
-      const tags = tagsRaw.split(",").map(t => t.trim()).filter(Boolean);
+    // Pular linhas vazias, fantasmas ou cabeçalhos duplicados
+    if (!nome || nome.length < 2 || nome === ',"' || nome.toLowerCase() === "nome") {
+      continue;
+    }
 
-      cats.push({
-        id: i,
-        name: nome,
-        age: idade,
-        category: categoria,
-        type: tipo,
-        tags: tags.length ? tags : ["Carinhoso", "Castrado"],
-        photo: foto || "assets/logo-mansao-dos-cats.jpg",
-        bio: historinha,
-        sponsorsCount: 0,
-        sponsors: []
-      });
+    const idade = clean(cols[idxIdade]).replace(/^["']|["']$/g, "").trim();
+    const categoria = clean(cols[idxCategoria]).toLowerCase() || "aguardando";
+    const tipo = clean(cols[idxTipo]).toLowerCase() || "adulto";
+    const tagsRaw = clean(cols[idxTags]);
+    const fotoRaw = clean(cols[idxFoto]).replace(/^["']|["']$/g, "").trim();
+    const historinha = clean(cols[idxHistorinha]).replace(/^["']|["']$/g, "").trim() || `Gatinho resgatado pela Mansão dos Cats no Guarujá/SP.`;
+
+    // Limpar aspas das tags (ex: ""Carinhosa"", ""Gosta de Colo"" -> Carinhosa, Gosta de Colo)
+    const cleanTags = tagsRaw
+      .replace(/["']/g, "")
+      .split(",")
+      .map(t => t.trim())
+      .filter(t => t.length > 0);
+
+    // Resolver foto (ImgBB, Google Drive ou local)
+    let foto = formatPhotoUrl(fotoRaw);
+    if (!foto || foto === "assets/logo-mansao-dos-cats.jpg") {
+      if (nome.toLowerCase().includes("norton")) {
+        foto = "assets/gatos/Norton.png";
+      }
+    }
+
+    cats.push({
+      id: idCounter++,
+      name: nome,
+      age: idade || "Adulto",
+      category: categoria.includes("apadrinhado") ? "apadrinhado" : "aguardando",
+      type: tipo.includes("filhote") ? "filhote" : (tipo.includes("especial") ? "especial" : "adulto"),
+      tags: cleanTags.length ? cleanTags : ["Carinhoso", "Castrado"],
+      photo: foto || "assets/logo-mansao-dos-cats.jpg",
+      bio: historinha,
+      sponsorsCount: 0,
+      sponsors: []
+    });
+  }
+
+  return cats;
+}
+
+// Tokenizador de Máquina de Estados RFC 4180
+function parseCsvRFC4180(text) {
+  const rows = [];
+  let row = [''];
+  let insideQuote = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    const next = text[i + 1];
+
+    if (c === '"') {
+      if (insideQuote && next === '"') {
+        row[row.length - 1] += '"';
+        i++;
+      } else {
+        insideQuote = !insideQuote;
+      }
+    } else if (c === ',' && !insideQuote) {
+      row.push('');
+    } else if ((c === '\r' || c === '\n') && !insideQuote) {
+      if (c === '\r' && next === '\n') {
+        i++;
+      }
+      rows.push(row);
+      row = [''];
+    } else {
+      row[row.length - 1] += c;
     }
   }
-  return cats;
+
+  if (row.length > 1 || row[0] !== '') {
+    rows.push(row);
+  }
+
+  return rows;
 }
 
 function resetCatsToDefaults() {
