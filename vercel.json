@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "name": "natal-mansao-dos-cats",
+  "cleanUrls": true,
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

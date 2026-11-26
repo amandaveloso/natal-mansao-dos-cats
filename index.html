@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Natal Mansão dos Cats 🐾🎄 | Seja o Noel de um Gatinho!</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="assets/logo-mansao-dos-cats.jpg">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Canvas Confetti & QRCode.js -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Floating Snowflakes & Festive Glow -->
+  <div id="snow-container" aria-hidden="true"></div>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-banner">
+    <div class="container top-banner-content">
+      <span>🎅 <strong>Campanha de Natal Mansão dos Cats</strong> — Faça o Natal de um gatinho resgatado inesquecível! 🎁</span>
+      <a href="#gatinhos" class="btn-top-banner">Escolher Gatinho</a>
+    </div>
+  </div>
+
+  <!-- Header / Navbar -->
+  <header class="main-header">
+    <div class="container header-container">
+      <div class="logo-area">
+        <img src="assets/logo-mansao-dos-cats.jpg" alt="Logo Mansão dos Cats" class="main-logo">
+        <div class="logo-text">
+          <h1>Mansão dos Cats</h1>
+          <span class="subtag">#Adote • Campanha de Natal 2026</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <a href="#como-funciona"><i class="fa-solid fa-wand-magic-sparkles"></i> Como Funciona</a>
+        <a href="#gatinhos"><i class="fa-solid fa-cat"></i> Gatinhos</a>
+        <a href="#sobre"><i class="fa-solid fa-heart"></i> A Mansão</a>
+        <a href="#duvidas"><i class="fa-solid fa-circle-question"></i> Dúvidas</a>
+        <button type="button" class="btn-header-share" onclick="openShareCampaignModal()">
+          <i class="fa-solid fa-bullhorn"></i> Divulgar
+        </button>
+        <a href="#gatinhos" class="btn-header-cta"><i class="fa-solid fa-gift"></i> Apadrinhar</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <div class="badge-festive">
+          <span class="badge-icon">🎄</span> Adote o espírito natalino!
+        </div>
+        <h2 class="hero-title">
+          Seja o <span class="highlight-text">Padrinho Noel</span> de um gatinho neste Natal!
+        </h2>
+        <p class="hero-desc">
+          Na <strong>Mansão dos Cats</strong> (Guarujá/SP), dezenas de gatinhos resgatados sonham com carinho, saúde, um lar definitivo e uma ceia deliciosa de Natal. 
+          Escolha um afilhado de 4 patas, envie um presentinho simbólico (sachê, ração ou areia) via Pix e receba seu 
+          <strong>Certificado Oficial de Padrinho Noel</strong> para compartilhar nos Stories! 🐾✨
+        </p>
+
+        <div class="hero-ctas">
+          <a href="#gatinhos" class="btn-primary">
+            <i class="fa-solid fa-hand-holding-heart"></i> Escolher Meu Afilhado
+          </a>
+          <button type="button" class="btn-secondary" onclick="openShareCampaignModal()">
+            <i class="fa-solid fa-share-nodes"></i> Divulgar Iniciativa
+          </button>
+        </div>
+
+        <!-- Metric Counters -->
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-number" id="stat-total-cats">8</span>
+            <span class="stat-label">Gatinhos na Campanha</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number highlight" id="stat-sponsored-cats">3</span>
+            <span class="stat-label">Já Apadrinhados</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" id="stat-pix-key">100%</span>
+            <span class="stat-label">Amor e Transparência</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-card-festive">
+          <div class="hero-santa-hat">🎅</div>
+          <img src="assets/logo-mansao-dos-cats.jpg" alt="Mansão dos Cats Natal" class="hero-card-img">
+          <div class="hero-card-floating-badge badge-top-right">
+            <span>🎁 Pix Direto:</span>
+            <strong>padrinhogatos@gmail.com</strong>
+          </div>
+          <div class="hero-card-floating-badge badge-bottom-left">
+            <span>🐾 Ganhe o seu card</span>
+            <strong>Compartilhável p/ Stories!</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="como-funciona" class="how-it-works-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-tag">Passo a Passo Simples</span>
+        <h2 class="section-title">Como Funciona o Apadrinhamento?</h2>
+        <p class="section-subtitle">Em menos de 2 minutos você faz o Natal de um gatinho muito mais feliz!</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-icon-wrapper"><i class="fa-solid fa-cat"></i></div>
+          <h3>Escolha o Gatinho</h3>
+          <p>Navegue pela lista, conheça a historinha e selecione o gatinho que tocou seu coração.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-icon-wrapper"><i class="fa-solid fa-gift"></i></div>
+          <h3>Escolha o Presente</h3>
+          <p>Escolha um presentinho simbólico: sachê gostoso, ração crocante, areia limpinha ou valor livre.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-icon-wrapper"><i class="fa-brands fa-pix"></i></div>
+          <h3>Faça o Pix</h3>
+          <p>Pague com o QR Code ou Copia & Cola (Chave: <code>padrinhogatos@gmail.com</code>) e anexe o comprovante.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <div class="step-icon-wrapper"><i class="fa-solid fa-certificate"></i></div>
+          <h3>Receba seu Card</h3>
+          <p>Ganhe o Certificado Oficial de Padrinho Noel com a foto do gatinho agradecendo para postar nos Stories!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cats Catalog Section -->
+  <section id="gatinhos" class="cats-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="header-left">
+          <span class="section-tag">Nossos Afilhados</span>
+          <h2 class="section-title">Escolha seu Gatinho para Apadrinhar 🐾</h2>
+          <p class="section-subtitle">Todos eles esperam com muito carinho pelo seu presente neste fim de ano!</p>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div class="catalog-filters">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="cat-search-input" placeholder="Buscar por nome do gatinho...">
+          </div>
+
+          <div class="filter-pills">
+            <button class="pill active" data-filter="all">Todos</button>
+            <button class="pill" data-filter="precisando">Precisando de Padrinho 🎁</button>
+            <button class="pill" data-filter="apadrinhados">Mais Apadrinhados ⭐</button>
+            <button class="pill" data-filter="filhote">Filhotes 🍼</button>
+            <button class="pill" data-filter="especial">Especiais / Idosinhos 🌟</button>
+            <button class="pill pill-import" id="btn-open-csv-importer" onclick="openCsvImporterModal()" title="Subir lista de gatinhos via planilha CSV">
+              <i class="fa-solid fa-file-csv"></i> Subir Planilha
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cats Cards Grid -->
+      <div class="cats-grid" id="cats-grid">
+        <!-- Injected via JavaScript dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- About The Shelter Section -->
+  <section id="sobre" class="about-section">
+    <div class="container about-grid">
+      <div class="about-image-wrapper">
+        <div class="about-logo-frame">
+          <img src="assets/logo-mansao-dos-cats.jpg" alt="Mansão dos Cats">
+        </div>
+      </div>
+      <div class="about-content">
+        <span class="section-tag">Guarujá/SP • Amor e Dedicação</span>
+        <h2 class="section-title">Sobre a Mansão dos Cats</h2>
+        <p>
+          Localizada no <strong>Guarujá/SP</strong>, a <strong>Mansão dos Cats</strong> é uma ONG dedicada ao resgate, tratamento veterinário, 
+          reabilitação física e emocional, e encaminhamento para <strong>adoção responsável</strong> de gatos em situação de abandono e maus-tratos.
+        </p>
+        <p>
+          Além de apadrinhar neste Natal com sachês, ração e areia, <strong>todos os nossos gatinhos estão disponíveis para adoção!</strong> 
+          Se você mora no Guarujá, Santos ou região e tem interesse em adotar com posse responsável (casas/apartamentos com redes de proteção), 
+          fale diretamente conosco pelo Instagram oficial <a href="https://www.instagram.com/mansaodoscats/" target="_blank" rel="noopener" style="color: var(--primary-turquoise-dark); font-weight: 800;">@mansaodoscats</a>.
+        </p>
+        <p>
+          Nosso trabalho é 100% voluntário e depende exclusivamente de doações. Neste fim de ano, sua ajuda garante potinhos cheios e muito aconchego para cada focinho resgatado! 🐾
+        </p>
+
+        <div class="about-highlights">
+          <div class="highlight-item">
+            <i class="fa-solid fa-location-dot"></i>
+            <div>
+              <strong>Sede no Guarujá/SP</strong>
+              <span>Atuação dedicada no litoral de São Paulo.</span>
+            </div>
+          </div>
+          <div class="highlight-item">
+            <i class="fa-solid fa-stethoscope"></i>
+            <div>
+              <strong>Saúde e Dignidade</strong>
+              <span>Castrados, vacinados, vermifugados e testados.</span>
+            </div>
+          </div>
+          <div class="highlight-item">
+            <i class="fa-solid fa-house-chimney-heart"></i>
+            <div>
+              <strong>Adoção Responsável</strong>
+              <span>Processo seguro para lares 100% telados.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="duvidas" class="faq-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-tag">Tire suas Dúvidas</span>
+        <h2 class="section-title">Perguntas Frequentes</h2>
+      </div>
+
+      <div class="faq-accordion">
+        <details class="faq-item" open>
+          <summary>
+            <span>Como meu Pix é utilizado pela Mansão dos Cats?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </summary>
+          <div class="faq-body">
+            100% dos valores arrecadados são convertidos diretamente na compra dos mantimentos escolhidos (sachês, pacotes de ração super premium, areia sanitária, medicamentos e itens de conforto) para os gatinhos do abrigo.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span>Posso apadrinhar mais de um gatinho?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </summary>
+          <div class="faq-body">
+            Sim! Com certeza! Você pode apadrinhar quantos gatinhos quiser. Ao concluir o primeiro apadrinhamento e baixar o certificado, basta clicar em "Apadrinhar Outro Gatinho".
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span>Como funciona o comprovante? É obrigatório anexar?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </summary>
+          <div class="faq-body">
+            Recomendamos anexar o print do Pix para que possamos validar a doação e emitir seu lindo certificado com seu nome. Você também tem a opção de enviar o comprovante diretamente para o nosso WhatsApp se preferir.
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span>Me apaixonei por um gatinho! Como posso adotá-lo?</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </summary>
+          <div class="faq-body">
+            Sim! Todos os nossos gatinhos estão aptos e torcendo por uma família! Nosso abrigo fica no <strong>Guarujá/SP</strong> e realizamos entrevistas com foco em lares seguros (apartamentos ou casas 100% telados e sem rotas de fuga). Basta enviar uma mensagem no direct do nosso Instagram oficial: <a href="https://www.instagram.com/mansaodoscats/" target="_blank" rel="noopener" style="font-weight: 800; color: var(--primary-turquoise-dark);">@mansaodoscats</a> informando o nome do gatinho que você deseja adotar!
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container footer-content">
+      <div class="footer-col">
+        <div class="footer-logo">
+          <img src="assets/logo-mansao-dos-cats.jpg" alt="Mansão dos Cats">
+          <h3>Mansão dos Cats</h3>
+        </div>
+        <p>Amor, resgate e transformação na vida de gatinhos. Faça parte dessa corrente do bem neste Natal!</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Chave Pix Oficial</h4>
+        <div class="pix-badge-box">
+          <span class="label">Chave E-mail Pix:</span>
+          <strong id="footer-pix">padrinhogatos@gmail.com</strong>
+          <span class="titular-tag">Titular da Conta: <strong>FERNANDA GAGLIANO ALVES</strong></span>
+          <button class="btn-copy-mini" onclick="copyText('padrinhogatos@gmail.com', this)">
+            <i class="fa-regular fa-copy"></i> Copiar Chave
+          </button>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Acompanhe a Mansão</h4>
+        <p style="font-size: 0.85rem; color: #a4dbe1; margin-bottom: 10px;">Guarujá / SP • Litoral Paulista</p>
+        <div class="social-links">
+          <a href="https://www.instagram.com/mansaodoscats/" target="_blank" rel="noopener" class="social-btn instagram">
+            <i class="fa-brands fa-instagram"></i> @mansaodoscats
+          </a>
+          <a href="https://wa.me/5513999999999?text=Ol%C3%A1!%20Vim%20pelo%20portal%20do%20Natal%20da%20Mans%C3%A3o%20dos%20Cats%20Guaruj%C3%A1!" target="_blank" rel="noopener" class="social-btn whatsapp">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp Mansão
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom text-center">
+      <p>© 2026 Mansão dos Cats — Campanha Solidária de Natal. Feito com amor pelos ronrons! 🐾❤️</p>
+    </div>
+  </footer>
+
+  <!-- =============================================================== -->
+  <!-- MODAL DE APADRINHAMENTO (FLOW COMPLETO) -->
+  <!-- =============================================================== -->
+  <div id="sponsor-modal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+    <div class="modal-wrapper">
+      <button class="modal-close-btn" id="modal-close-btn" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Cat Mini Header -->
+      <div class="modal-cat-summary">
+        <div class="modal-cat-avatar">
+          <img id="modal-cat-photo" src="" alt="Foto do Gatinho">
+          <span class="modal-cat-hat">🎅</span>
+        </div>
+        <div class="modal-cat-info">
+          <span class="modal-badge">Apadrinhando agora:</span>
+          <h3 id="modal-cat-name">Nome do Gatinho</h3>
+          <p id="modal-cat-tags">Idade • Personalidade</p>
+        </div>
+      </div>
+
+      <!-- Step Indicator -->
+      <div class="flow-steps-bar">
+        <div class="step-indicator active" id="indicator-step-1">
+          <span>1</span> Presente
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" id="indicator-step-2">
+          <span>2</span> Pix
+        </div>
+        <div class="step-line"></div>
+        <div class="step-indicator" id="indicator-step-3">
+          <span>3</span> Comprovante
+        </div>
+      </div>
+
+      <!-- STEP 1: Escolha do Presente & Nome do Padrinho -->
+      <div class="step-screen active" id="screen-step-1">
+        <h4 class="step-heading">
+          <i class="fa-solid fa-gift"></i> Escolha o presentinho de Natal:
+        </h4>
+        <p class="step-desc">Selecione o mimo simbólico que você deseja presentear o seu afilhado:</p>
+
+        <div class="gifts-options-grid">
+          <label class="gift-radio-card" data-val="15" data-name="Sachê Delícia de Natal">
+            <input type="radio" name="gift-option" value="15" checked>
+            <div class="gift-card-content">
+              <span class="gift-emoji">🥫</span>
+              <div class="gift-details">
+                <strong>Sachê Delícia de Natal</strong>
+                <span>Uma ceia suculenta e saborosa</span>
+              </div>
+              <div class="gift-price">R$ 15,00</div>
+            </div>
+          </label>
+
+          <label class="gift-radio-card" data-val="25" data-name="Areia Sanitária Limpinha">
+            <input type="radio" name="gift-option" value="25">
+            <div class="gift-card-content">
+              <span class="gift-emoji">🏖️</span>
+              <div class="gift-details">
+                <strong>Areia Higiênica Limpinha</strong>
+                <span>Saúde, conforto e patinhas limpas</span>
+              </div>
+              <div class="gift-price">R$ 25,00</div>
+            </div>
+          </label>
+
+          <label class="gift-radio-card" data-val="35" data-name="Pacote de Ração Crocante">
+            <input type="radio" name="gift-option" value="35">
+            <div class="gift-card-content">
+              <span class="gift-emoji">🥣</span>
+              <div class="gift-details">
+                <strong>Ração Super Crocante</strong>
+                <span>Nutrição e barriguinha cheia</span>
+              </div>
+              <div class="gift-price">R$ 35,00</div>
+            </div>
+          </label>
+
+          <label class="gift-radio-card featured" data-val="75" data-name="Combo Noel Completo">
+            <input type="radio" name="gift-option" value="75">
+            <div class="gift-badge-popular">Super Padrinho ⭐</div>
+            <div class="gift-card-content">
+              <span class="gift-emoji">👑</span>
+              <div class="gift-details">
+                <strong>Combo Noel Completo</strong>
+                <span>Sachê + Ração + Areia + Mimo</span>
+              </div>
+              <div class="gift-price">R$ 75,00</div>
+            </div>
+          </label>
+
+          <label class="gift-radio-card custom-val" data-val="custom" data-name="Presente de Coração">
+            <input type="radio" name="gift-option" value="custom">
+            <div class="gift-card-content">
+              <span class="gift-emoji">💖</span>
+              <div class="gift-details">
+                <strong>Outro Valor (Livre)</strong>
+                <span>Doe qualquer valor que tocar seu coração</span>
+              </div>
+              <div class="custom-input-box">
+                <span>R$</span>
+                <input type="number" id="custom-amount-input" min="5" placeholder="50" disabled>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Sponsor Details -->
+        <div class="sponsor-inputs-group">
+          <div class="form-group">
+            <label for="sponsor-name-input">
+              <i class="fa-solid fa-signature"></i> Seu Nome ou Apelido (para o Certificado):
+            </label>
+            <input type="text" id="sponsor-name-input" placeholder="Ex: Amanda Silva, Tia Carol, etc." required>
+          </div>
+
+          <div class="form-group">
+            <label for="sponsor-message-input">
+              <i class="fa-solid fa-comment-heart"></i> Mensagem de carinho para o gatinho (opcional):
+            </label>
+            <input type="text" id="sponsor-message-input" placeholder="Ex: Feliz Natal, coisa linda! Que você ganhe um lar em breve! ❤️">
+          </div>
+        </div>
+
+        <div class="modal-footer-actions">
+          <button class="btn-primary full-width" id="btn-goto-step-2">
+            Continuar para o Pix <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: PIX QR Code & Instruções -->
+      <div class="step-screen" id="screen-step-2">
+        <h4 class="step-heading">
+          <i class="fa-brands fa-pix"></i> Pagamento via Pix
+        </h4>
+        <p class="step-desc">
+          Presente: <strong id="pix-summary-gift">Sachê Delícia</strong> • Valor: <strong id="pix-summary-val" class="highlight-val">R$ 15,00</strong>
+        </p>
+
+        <div class="pix-card-box">
+          <!-- QR Code Container -->
+          <div class="pix-qrcode-wrapper">
+            <div id="qrcode-display"></div>
+            <div class="qrcode-caption">
+              <i class="fa-solid fa-camera"></i> Aponte a câmera do seu banco no QR Code
+            </div>
+          </div>
+
+          <!-- Pix Copia e Cola -->
+          <div class="pix-copia-cola-area">
+            <label>Ou copie a Chave Pix / Código Copia e Cola:</label>
+            
+            <div class="key-display-pill">
+              <span class="label">Chave Oficial:</span>
+              <span class="key-text" id="official-pix-key">padrinhogatos@gmail.com</span>
+              <button class="btn-copy-code" id="btn-copy-key" title="Copiar Chave Pix">
+                <i class="fa-regular fa-copy"></i> Copiar Chave
+              </button>
+            </div>
+
+            <div class="copia-cola-box">
+              <textarea id="pix-copia-cola-textarea" readonly></textarea>
+              <button class="btn-copy-code primary" id="btn-copy-copiacola">
+                <i class="fa-regular fa-copy"></i> Copiar Código Pix Copia e Cola
+              </button>
+            </div>
+            
+            <div class="pix-beneficiary-notice">
+              <i class="fa-solid fa-shield-cat"></i>
+              <div>
+                <span>Titular: <strong>FERNANDA GAGLIANO ALVES</strong></span><br>
+                <span>Chave: <strong>padrinhogatos@gmail.com</strong> • Mansão dos Cats (Guarujá/SP)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-actions dual">
+          <button class="btn-secondary" id="btn-backto-step-1">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
+          </button>
+          <button class="btn-primary" id="btn-goto-step-3">
+            Já fiz o Pix, anexar comprovante <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Envio de Comprovante -->
+      <div class="step-screen" id="screen-step-3">
+        <h4 class="step-heading">
+          <i class="fa-solid fa-receipt"></i> Anexar Comprovante do Pix
+        </h4>
+        <p class="step-desc">
+          Anexe a imagem ou PDF do seu comprovante para confirmarmos o apadrinhamento e liberarmos seu certificado exclusivo:
+        </p>
+
+        <!-- Dropzone / File Picker -->
+        <div class="receipt-dropzone" id="receipt-dropzone">
+          <input type="file" id="receipt-file-input" accept="image/*,application/pdf" class="hidden-file-input">
+          <div class="dropzone-idle" id="dropzone-idle">
+            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+            <p><strong>Clique aqui para selecionar</strong> ou arraste o print do comprovante</p>
+            <span class="dropzone-hint">Formatos aceitos: JPG, PNG, PDF ou print de tela</span>
+          </div>
+
+          <div class="dropzone-preview hidden" id="dropzone-preview">
+            <div class="preview-thumb">
+              <img id="preview-image" src="" alt="Comprovante">
+              <i id="preview-pdf-icon" class="fa-solid fa-file-pdf hidden"></i>
+            </div>
+            <div class="preview-details">
+              <span id="preview-filename">comprovante_pix.png</span>
+              <button type="button" class="btn-remove-file" id="btn-remove-file">
+                <i class="fa-solid fa-trash-can"></i> Trocar arquivo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direct WhatsApp Option -->
+        <div class="or-separator">
+          <span>OU</span>
+        </div>
+
+        <div class="whatsapp-alternative-card">
+          <i class="fa-brands fa-whatsapp wa-icon"></i>
+          <div class="wa-text">
+            <strong>Prefere enviar pelo WhatsApp?</strong>
+            <p>Você pode enviar o comprovante diretamente para a voluntária da Mansão.</p>
+          </div>
+          <button type="button" class="btn-wa-direct" id="btn-wa-direct">
+            Abrir WhatsApp
+          </button>
+        </div>
+
+        <div class="modal-footer-actions dual">
+          <button class="btn-secondary" id="btn-backto-step-2">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
+          </button>
+          <button class="btn-primary success-btn" id="btn-finish-sponsorship">
+            <i class="fa-solid fa-check"></i> Concluir e Gerar Certificado!
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- MODAL DE SUCESSO / CERTIFICADO / COMPARTILHAMENTO -->
+  <!-- =============================================================== -->
+  <div id="success-modal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+    <div class="modal-wrapper success-wrapper">
+      <button class="modal-close-btn" id="success-modal-close" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Festive Greeting Header -->
+      <div class="success-header text-center">
+        <div class="success-badge-icon">🎉🐾</div>
+        <h2>Parabéns e Muito Obrigado!</h2>
+        <p class="success-subtitle">
+          Seu apadrinhamento foi registrado com sucesso na Mansão dos Cats!
+        </p>
+      </div>
+
+      <!-- Cat Thank You Message Card -->
+      <div class="cat-thankyou-card">
+        <div class="thankyou-cat-photo-wrapper">
+          <img id="thankyou-cat-photo" src="" alt="Gatinho Agradecendo">
+          <span class="thankyou-santa-hat">🎅</span>
+        </div>
+        <div class="cat-speech-bubble">
+          <div class="speech-tail"></div>
+          <p class="speech-quote">
+            "Miau! <strong id="thankyou-sponsor-name">Amigo(a)</strong>, muito obrigado pelo seu presente de Natal (<span id="thankyou-gift-name">Sachê</span>)! 
+            Minha barriguinha e meu coração estão quentinhos graças ao seu carinho! Ronrons mil pra você! 🐾❤️"
+          </p>
+          <span class="speech-author">— Com amor, <strong id="thankyou-cat-name">Gatinho</strong></span>
+        </div>
+      </div>
+
+      <!-- Certificate & Social Share Section -->
+      <div class="certificate-section">
+        <div class="certificate-intro">
+          <h3>
+            <i class="fa-solid fa-certificate highlight-icon"></i> 
+            Seu Card de Padrinho Noel está pronto!
+          </h3>
+          <p>
+            Compartilhe nos seus Stories do Instagram ou envie no grupo da família para inspirar mais pessoas a apadrinharem:
+          </p>
+        </div>
+
+        <!-- Card Preview (Canvas renders dynamically) -->
+        <div class="certificate-preview-container">
+          <canvas id="certificate-canvas" width="1080" height="1920"></canvas>
+          <div class="certificate-watermark">
+            <i class="fa-solid fa-mobile-screen"></i> Formato perfeito para Stories do Instagram (9:16)
+          </div>
+        </div>
+
+        <!-- Download & Share Buttons -->
+        <div class="certificate-actions">
+          <button class="btn-download-cert" id="btn-download-cert">
+            <i class="fa-solid fa-cloud-arrow-down"></i> Baixar Imagem para o Instagram
+          </button>
+          
+          <button class="btn-share-whatsapp" id="btn-share-whatsapp">
+            <i class="fa-brands fa-whatsapp"></i> Compartilhar no WhatsApp
+          </button>
+
+          <button class="btn-copy-caption" id="btn-copy-caption">
+            <i class="fa-solid fa-copy"></i> Copiar Legenda Pronta
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom Next Steps -->
+      <div class="success-bottom-bar text-center">
+        <button class="btn-secondary" id="btn-sponsor-another">
+          <i class="fa-solid fa-heart"></i> Apadrinhar Outro Gatinho
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- MODAL DE DIVULGAÇÃO GERAL DA CAMPANHA (NÃO PODE DOAR? DIVULGUE!) -->
+  <!-- =============================================================== -->
+  <div id="share-campaign-modal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+    <div class="modal-wrapper">
+      <button class="modal-close-btn" onclick="closeShareCampaignModal()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="text-center" style="margin-bottom: 20px;">
+        <div style="font-size: 2.8rem; margin-bottom: 8px;">📢🐾</div>
+        <h3 style="font-size: 1.8rem; color: #0f4b54;">Ajude a Mansão Divulgando a Campanha!</h3>
+        <p style="font-size: 0.95rem; color: #4a5568;">
+          Não pode doar em dinheiro no momento? Você tem um poder gigante: seu compartilhamento pode fazer essa mensagem chegar a futuros padrinhos ou até a uma família que queira <strong>adotar um gatinho</strong> no Guarujá!
+        </p>
+      </div>
+
+      <div class="share-options-box">
+        <!-- Input do Nome do Apoiador -->
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="supporter-name-input" style="font-weight: 800; color: #124d56; font-size: 0.95rem; display: block; margin-bottom: 6px;">
+            <i class="fa-solid fa-signature"></i> Digite seu Nome para personalizar o seu Card de Apoio:
+          </label>
+          <input type="text" id="supporter-name-input" placeholder="Ex: Amanda Silva, Lucas, etc." oninput="renderSupporterCardCanvas()" style="width: 100%; padding: 12px 16px; border: 2px solid #bcebf1; border-radius: 12px; font-size: 1rem; outline: none;">
+        </div>
+
+        <!-- Preview do Card de Apoio Canvas (Stories 9:16) -->
+        <div class="certificate-preview-container" style="margin-bottom: 16px;">
+          <canvas id="supporter-canvas" width="1080" height="1920" style="width: 100%; max-width: 290px; height: auto; aspect-ratio: 9/16; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.18); border: 3px solid #ffffff;"></canvas>
+          <div class="certificate-watermark">
+            <i class="fa-solid fa-mobile-screen"></i> Card Oficial de Apoio p/ Stories do Instagram (9:16)
+          </div>
+        </div>
+
+        <div class="share-actions-grid">
+          <button class="btn-download-cert" style="width: 100%; justify-content: center;" onclick="downloadSupporterCard()">
+            <i class="fa-solid fa-cloud-arrow-down"></i> Baixar Meu Card para o Instagram
+          </button>
+
+          <button class="btn-share-whatsapp full" onclick="shareCampaignOnWhatsApp()">
+            <i class="fa-brands fa-whatsapp"></i> Compartilhar no WhatsApp
+          </button>
+
+          <button class="btn-copy-caption full" onclick="copyCampaignGeneralText()">
+            <i class="fa-solid fa-copy"></i> Copiar Texto Pronto p/ Legenda
+          </button>
+
+          <button class="btn-secondary full" onclick="copyCampaignSiteLink()">
+            <i class="fa-solid fa-link"></i> Copiar Link do Site da Campanha
+          </button>
+        </div>
+
+        <div style="margin-top: 18px; background: #eaf8fa; padding: 12px 16px; border-radius: 12px; font-size: 0.85rem; color: #145963;">
+          <i class="fa-brands fa-instagram"></i> <strong>Dica de ouro:</strong> Poste a imagem nos seus Stories e coloque a figurinha de <strong>Link</strong> apontando para o site da Mansão marcando <strong>@mansaodoscats</strong>!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================================================== -->
+  <!-- MODAL DE IMPORTAÇÃO DE PLANILHA CSV DE GATINHOS -->
+  <!-- =============================================================== -->
+  <div id="csv-importer-modal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+    <div class="modal-wrapper">
+      <button class="modal-close-btn" onclick="closeCsvImporterModal()" aria-label="Fechar">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="text-center" style="margin-bottom: 20px;">
+        <div style="font-size: 2.5rem; margin-bottom: 6px;">📋✨</div>
+        <h3 style="font-size: 1.7rem; color: #0f4b54;">Subir Planilha de Gatinhos</h3>
+        <p style="font-size: 0.92rem; color: #4a5568;">
+          Você pode subir todos os gatinhos reais da Mansão dos Cats de uma vez só através de um arquivo <strong>.CSV</strong>!
+        </p>
+      </div>
+
+      <div class="csv-importer-body">
+        <div class="csv-instructions-box">
+          <h4><i class="fa-solid fa-circle-info"></i> Como preparar sua planilha:</h4>
+          <p>Sua planilha (no Excel ou Google Planilhas) deve conter as seguintes colunas:</p>
+          <div class="code-preview">nome, idade, categoria, tipo, tags, foto, historinha</div>
+          <p style="margin-top: 8px;">
+            <a href="gatos-modelo.csv" download="gatos-modelo.csv" class="link-download-csv">
+              <i class="fa-solid fa-file-arrow-down"></i> Baixar Modelo de Planilha (.CSV) Pronto
+            </a>
+          </p>
+        </div>
+
+        <div class="receipt-dropzone" id="csv-dropzone" style="margin-top: 15px;">
+          <input type="file" id="csv-file-input" accept=".csv,text/csv" class="hidden-file-input">
+          <div class="dropzone-idle">
+            <i class="fa-solid fa-file-csv dropzone-icon" style="color: #10b981;"></i>
+            <p><strong>Clique aqui para selecionar seu arquivo .CSV</strong></p>
+            <span class="dropzone-hint">Arquivo salvo do Excel ou exportado do Google Sheets</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; justify-content: space-between; gap: 10px;">
+          <button class="btn-secondary" onclick="resetCatsToDefaults()">
+            <i class="fa-solid fa-rotate-left"></i> Restaurar Dados Originais
+          </button>
+          <button class="btn-primary" onclick="closeCsvImporterModal()">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden">
+    <i class="fa-solid fa-circle-check toast-icon"></i>
+    <span id="toast-message">Copiado com sucesso!</span>
+  </div>
+
+  <!-- Assets & App Script -->
+  <script src="assets/logo-base64.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
